@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ionic:build": "echo \"Using static HTML/CSS/JS from www folder. No build step needed.\""
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,6 @@
     "intersection-observer": "^0.12.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.1.2"
+    "@capacitor/cli": "^6.2.1"
   }
 }
