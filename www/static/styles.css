@@ -404,6 +404,178 @@ transform: translateX(26px);
 }
 
 
+/* Search */
+
+/* Styles for the original 'Seek' button */
+#search-btn {
+    border-radius: 25px; /* Rounded corners */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* No border */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    background-color: #f06c26; /* Original orange color */
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition on hover */
+    /* Text color is likely inherited from .btn or .btn-primary */
+    /* Add 'color: #fff;' if text isn't white */
+}
+
+/* Hover effect for the 'Seek' button */
+#search-btn:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Increased shadow on hover */
+}
+
+
+
+
+/* **** UPDATED STYLES FOR SUMMARIZE BUTTON **** */
+
+/* Styles now match the .oli-button styles you provided */
+/* New style for the overview summary container */
+#overview-summary {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+.meditating-message {
+    font-size: 1rem;
+     font-style: italic;  /* REMOVE this */
+    color: #666;
+    background-size: contain;
+    padding: 20px;
+    min-height: 50px;
+    text-align: left;    /* ADD this */
+}
+
+/* ADD these new rules */
+.messages-box .box .messages.is-loading {
+    background-color: transparent !important; /* Override default white/honeydew */
+    border: none !important;                  /* Override default border */
+    padding: 0;                               /* Remove padding from the wrapper */
+    box-shadow: none;                         /* Remove any inherited shadow */
+}
+
+/* Apply padding directly to the loading text elements when background is transparent */
+.messages-box .box .messages.is-loading .loading-message,
+.messages-box .box .messages.is-loading .meditating-message {
+     margin: 0; /* Reset margin */
+     padding: 10px 15px; /* Add padding directly here */
+     /* Ensure text color is visible against chat background */
+     color: #555; /* Adjust color if needed */
+}
+
+.result-item {
+    position: relative; /* Ensure it’s positioned so box-shadow shows correctly */
+}
+
+/* Define a pulsing animation for the glow */
+@keyframes pulseGlow {
+    0% {
+      box-shadow: 0 0 10px 3px orange;
+    }
+    50% {
+      box-shadow: 0 0 20px 6px orange;
+    }
+    100% {
+      box-shadow: 0 0 10px 3px orange;
+    }
+  }
+  
+  /* Use the pulsing animation in the highlight class */
+  .highlight-golden {
+    animation: pulseGlow 1s infinite; /* The pulse cycle lasts 1 second and repeats infinitely */
+    /* You can add !important if necessary to override other styles */
+  }
+
+/*======OLD STYLE=====
+/* Style for reference links 
+.reference-link {
+    color: #007BFF;
+    text-decoration: underline;
+    cursor: pointer;
+}*/
+
+/* ─── Inline “REF” badge style ───────────────────────────────────────── */
+.reference-link{
+    display: inline !important;         /* Force inline behavior */
+    text-decoration: none !important;    /* No underline */
+    color: inherit;                   /* Match text color */
+    vertical-align: baseline !important;/* Align link itself with text baseline */
+    margin: 0 1px 0 3px;             /* Fine-tune spacing */
+    padding: 0;                       /* NO padding/border/bg on link */
+    border: none;
+    background: none;
+    border-radius: 0;
+    white-space: nowrap;              /* Prevent internal wrapping */
+}
+
+/* default (transparent) state */
+.reference-link .badge-secondary{
+    display: inline-block;            /* Use inline-block for padding/border */
+    vertical-align: baseline !important; /* Align badge itself with text baseline */
+    
+    /* --- Keep User's Preferred Style --- */
+    background: #d5d5d5;              /* User's grey pill */
+    color: #000;                      /* User's black text */
+    border: 1px solid #b0b0b0;       /* Slightly darker grey border for visibility */
+    border-radius: 5px;               /* User's rounded corners */
+    font-size: .75em;                 /* User's size */
+    font-weight: bold;                /* Added bold to match example image better */
+    padding: 2px 5px;               /* Slightly adjusted padding for vertical fit */
+    line-height: 1;                 /* Keep text tight in badge */
+    text-align: center;
+    white-space: nowrap;              /* Prevent REF1 text wrapping */
+    transition: background .15s ease;
+
+}
+
+/* hover / focus → light-grey pill */
+.reference-link:hover .badge-secondary,
+.reference-link:focus .badge-secondary{
+    background: #c0c0c0;              /* Slightly darker grey on hover */
+    color: #000;                      /* Keep black text */
+    border-color: #006eff;           /* Darker border */
+    /* Optional: Blue halo if desired (from user code) */
+    box-shadow: 0 0 0 2px #007BFF;
+    /* Remove the goldenGlow animation unless specifically wanted with grey */
+     animation: goldenGlow 2s ease-in-out infinite alternate; 
+      
+}
+/* optional: keyboard users see focus outline */
+
+
+/* Keyframes for a gentle pulsing glow */
+@keyframes goldenGlow {
+    from { box-shadow: 0 0 4px 1px rgba(212, 175, 55, 0.4); }
+    to   { box-shadow: 0 0 10px 4px rgba(255, 215, 0, 0.9); }
+}
+
+
+
+/* (Optional) Add a hover effect for the Olier Overview button */
+#summarize-results-btn {
+       /* Note: Ensure 'Pacifico' font is loaded in your HTML for this to work */
+     /* e.g., <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"> */
+     font-family: 'Pacifico', cursive;
+     background-color: #4CAF50; /* Green from .oli-button */
+     border: none;           /* Match .oli-button */
+     color: white;           /* Match .oli-button */
+     padding: 5px;           /* Match .oli-button (smaller padding) */
+     text-align: center;     /* Match .oli-button */
+     text-decoration: none;  /* Match .oli-button */
+     font-size: 16px;        /* Match .oli-button */
+     cursor: pointer;        /* Match .oli-button */
+     border-radius: 5px;     /* Match .oli-button (less rounded) */
+     /* Removed box-shadow and transition from previous version */
+     /* The button is initially hidden via an inline style in the HTML */
+    transition: transform 0.2s ease; /* Hover effect for the 'Olier Summarize' button */
+}
+#summarize-results-btn:hover {
+    background-color: #45a049;
+    transform: scale(0.95);
+}
+
+
 /* Font Change Buttons Container */
 .font-change-container {
     position: absolute;
@@ -494,7 +666,7 @@ transform: translateX(26px);
     margin: 0;
     text-align: justify;
     color: #333;
-    max-height: 4.5rem; Display only 3 lines
+    max-height: 4.5rem; /*Display only 3 lines*/
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -963,6 +1135,8 @@ tbody {
 #chatbox {
     display: flex;
     flex-direction: column;
+    /* height: 100vh; */            /* fill the viewport */
+
     position: fixed;
     z-index: 1000;
     background-color: white;
@@ -972,7 +1146,8 @@ tbody {
     background: url('/static/chatbotbackgroundA.png') no-repeat center center / cover;
     right: 0;
     top: 0;
-    overflow: hidden;
+    /* remove overflow:hidden */
+  /* overflow: hidden; */
     transition: transform 0.3s ease-in-out; /* Only transition transform */
     transform: translateX(100%);
     touch-action: pan-y;
@@ -1176,8 +1351,9 @@ tbody {
 
 /* Messages container adapts to available space */
 #messages {
-    overflow-y: auto;
-    padding: 10px;
+    flex: 1 1 auto;             /* fill all available space */
+    overflow-y: auto;           /* now this area will scroll */
+    -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
 #messages .empty-div {
@@ -1205,6 +1381,18 @@ tbody {
     border-radius: 0 10px 10px 0;
 }
 
+/* ─── keep last chat line clear of the info-banner ──────────── */
+#messages .messages-box{
+    padding-bottom: 1rem;   /* ≈ banner-height + small gap */
+}
+
+/* phones: banner wraps higher, so add a bit more room */
+@media (max-width: 480px){
+    #messages .messages-box{
+        padding-bottom: 1rem;
+    }
+}
+
 /* Messages Box */
 .messages-box {
     display: flex;
@@ -1214,15 +1402,21 @@ tbody {
     gap: 5px;
 }
 
-/* Common styles for all messages */
 .messages-box .box .messages {
-    background-color: #fff;
-    padding: 10px 15px;
-    display: inline-block;
-    border-radius: 0 10px 10px 0;
-    border-left: 1px solid #1febb1;
+    background-color: #fff; /* Keep original AI background */
+    padding: 10px 15px 0px 15px; /* Keep padding (bottom adjusted earlier) */
+    display: inline-block;      /* CHANGE BACK to inline-block */
+    border-radius: 18px 18px 18px 4px; /* Keep desired shape */
+    border: 1px solid transparent;
+    position: relative;
     line-height: 1.4;
-    font-size: 1rem !important; 
+    font-size: 1rem !important;
+    max-width: 95%;             /* Keep max-width constraint */
+    text-align: left;           /* Keep text left-aligned */
+    word-wrap: break-word;      /* Still needed for long words */
+    overflow-wrap: break-word;  /* Still needed for long words */
+    /* margin-right: auto; */   /* REMOVE */
+    /* margin-left: 0; */       /* REMOVE */
 }
 
 .messages-box .box.right {
@@ -1230,10 +1424,23 @@ tbody {
 }
 
 .messages-box .box.right .messages {
-    background-color: #f0fff0;
-    border-radius: 10px 0 0 10px;
-    border-right: 1px solid #1febb1;
-    border-left: none;
+    background-color: #f0fff0; /* Keep original user background */
+    border-radius: 18px 18px 4px 18px; /* Keep desired shape */
+    border: 1px solid transparent;
+    text-align: left;
+    /* --- Remove Margins --- */
+    /* margin-left: auto; */    /* REMOVE */
+    /* margin-right: 0; */      /* REMOVE */
+}
+
+/* Remove bottom margin from the last paragraph inside AI messages */
+.messages-box .box.ai-message .messages p:last-child {
+    margin-bottom: 0;
+}
+
+/* Optional: Do the same for user messages if they might contain paragraphs */
+.messages-box .box.right .messages p:last-child {
+     margin-bottom: 0;
 }
 
 /* Existing Resizer Handle Styles */
@@ -1241,10 +1448,18 @@ tbody {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: -2px; /* Slight overlap to make it easier to grab */
-    width: 5px;
-    background-color: transparent;
-    cursor: ew-resize;
+    left: 0px; /* Position it exactly at the edge */
+    width: 8px; /* Make it slightly wider */
+    background-color: rgba(0, 0, 0, 0.1); /* Make slightly visible always */
+    border-left: 1px solid #bbb; /* Add a subtle visual edge */
+    cursor: ew-resize; /* Cursor indicates it's draggable */
+    pointer-events: auto; /* Ensure it can always receive clicks/drags */
+    z-index: 1001; /* Ensure it's visually on top */
+}
+
+/* Optional: Style for when it's being actively dragged */
+#chatbox-resizer.resizer-active {
+  background-color: rgba(0, 0, 0, 0.3); /* Darker when dragging */
 }
 
 #chatbox-resizer:hover {
@@ -1344,15 +1559,68 @@ tbody {
     }
 
     .loading-message {
-        font-style: italic;
+         font-style: italic; /* REMOVE this */
         color: #888;
-        text-align: center;
+        /* text-align: center; */ /* REMOVE this */
+        text-align: left;     /* ADD this */
         margin: 10px 0;
     }
 
 
 /* Chat Input */
 
+/*New Addition*/
+#chat-input {
+    max-height: 200px;    /* or a height that suits your design */
+    overflow-y: auto;     /* Enable vertical scrollbar if content exceeds the max height */
+    /* Optionally, allow horizontal scrolling if needed: overflow-x: hidden; */
+  }
+
+/* **** ADD THESE NEW RULES **** */
+
+/* Style for the new info message paragraph */
+#info-message {
+    position: absolute;
+    bottom: 100%;            /* Position above the input container */
+    left: 50%;               /* Center horizontally */
+    transform: translateX(-50%); /* Fine-tune centering */
+    width: 90%;              /* Adjust width as needed */
+    max-width: 400px;        /* Optional max width */
+    margin-bottom: 8px;      /* Space below the message */
+    padding: 5px 10px;       /* Padding inside the message box */
+    font-size: .80rem;       /* Adjust font size */
+    line-height: 1.3;
+    color: #444;             /* Slightly darker text */
+    background: rgba(235, 245, 235, 0.85); /* Slightly more opaque background */
+    text-align: center;
+    white-space: normal;
+    border-radius: 6px;
+    pointer-events: none;    /* Allow clicks to pass through */
+    z-index: 1050;           /* Ensure it's above the input bar */
+
+    /* --- Fading Transition --- */
+    opacity: 1;              /* Start visible */
+    visibility: visible;
+    transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+}
+
+/* Style for hiding the info message */
+#info-message.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px){
+    #info-message {
+        font-size: .75rem; /* Slightly smaller on very small screens */
+        width: 95%;
+    }
+}
+/* *************************** */
+
+
+/*Rest of the style about the*/
 #chat-input-container {
     flex-shrink: 0;
     margin-top: auto;
@@ -1363,18 +1631,16 @@ tbody {
     bottom: 0;
     left: 0;
     right: 0;
+    padding-bottom: env(keyboard-inset-height); /* Add this line */
     z-index: 1000;
     background-color: #f0fff0; /* Very subtle green */
     border: 1px solid #b3ffb3; /* Light green border for a gentle look */
     border-radius: 4px;         /* Rounded corners for a smoother appearance */
     padding: 8px 12px;          /* Adjusted padding for better text spacing */
 }
-/* 
-Adjust chat input container when keyboard is open */
-body.keyboard-open #chat-input-container {
-    position: absolute;
-    bottom: auto;
-}
+
+
+
 
 /* Optional: Hide resizer on mobile devices */
 @media (max-width: 767px) {
@@ -1397,7 +1663,7 @@ body.keyboard-open #chat-input-container {
     line-height: 1.1rem;         /* Set line-height equal to font-size */
     color: #333;                 /* Ensure text remains readable */
     resize: none;                /* Prevent manual resizing */
-    overflow-y: hidden;
+    overflow-y: auto;
     border: none;                /* Hide scrollbar */
 }
 
@@ -1460,6 +1726,13 @@ body.keyboard-open #chat-input-container {
 .copy-button {
     opacity: 0.6;
     transition: opacity 0.3s;
+    position: absolute; /* Stays absolute */
+    bottom: 5px;        /* Relative to .messages padding edge */
+    right: 5px;         /* Relative to .messages padding edge */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
 }
 
 .copy-button:hover {
@@ -1538,10 +1811,15 @@ body.keyboard-open #chat-input-container {
 /* Main Menu Dropdown */
 .main-menu-dropdown {
     position: fixed;
-    top: 0px;
+    top: 0;
     left: 10%;
     width: 80%;
-    height: 92vh;
+    
+    /* Updated height logic */
+    height: 92dvh; /* Better for iOS Safari */
+    max-height: 92dvh;
+    height: calc(var(--vh, 1vh) * 92); /* as a backup if needed */
+
     background-image: url('/static/oceanbackground4.jpg');
     background-size: cover;
     background-position: center;
@@ -1549,7 +1827,10 @@ body.keyboard-open #chat-input-container {
     background-color: rgba(255, 255, 255, 0.95);
     border-right: 1px solid #ccc;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+
     display: none;
     z-index: 2000;
     opacity: 0;
@@ -1559,6 +1840,7 @@ body.keyboard-open #chat-input-container {
     margin: 0;
     padding: 0;
 }
+
 
 .main-menu-dropdown.active {
     display: block;
@@ -2321,6 +2603,7 @@ body.keyboard-open #chat-input-container {
     margin: 0; /* Remove margin to align it to the edge */
     flex-shrink: 0; /* Ensure it doesn't shrink */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 50%; /* <-- ADD THIS LINE */
 }
 
 .open_chatbot.in-flex-box:hover {
@@ -2419,30 +2702,45 @@ body.keyboard-open #chat-input-container {
     /* Adjust the width to your desired size */
 }
 
+/* Style to permanently hide floating buttons when reading mode is active */
+.permanently-hidden {
+    display: none !important;
+}
+
 /* Toggle Reading Mode Button (Only Inside Flex Box) */
 
 .toggle_search.in-flex-box {
-    all: unset;
+    /* Remove 'all: unset;' if present, ensure basic button styling */
     background: none;
     border: none;
-    padding: 0;
+    padding: 0; /* Ensure no default padding interferes */
     cursor: pointer;
-    display: flex;
+    display: flex; /* Keep these for alignment */
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* Center content (logo) */
     z-index: 1000;
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    transform: translateY(0);
     opacity: 1;
-    margin: 0; /* Remove margin to align it to the edge */
+    margin: 0;
     width: 40px;
     height: 40px;
     flex-shrink: 0;
+    border-radius: 50%; /* Keep this for rounded shadow */
+    /* Add/Modify the transition */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease-in-out;
+    /* Removed transform: translateY(0); as it's default */
 }
 
 
+/* Add this new rule set */
+.toggle_search.in-flex-box:hover {
+    transform: scale(1.2); /* Slightly enlarge the button on hover */
+
+}
+
+/* :active rule (should shrink - MUST override hover scale) */
 .toggle_search.in-flex-box:active {
-    transform: scale(0.95); /* Slightly shrink the button on press */
+    transform: scale(0.95); /* This shrink should take precedence on click */
 }
 
 .toggle_search.in-flex-box.hidden {
@@ -2456,7 +2754,7 @@ body.keyboard-open #chat-input-container {
 .toggle-search-logo {
     width: 60px; /* Adjust size as needed inside flex box */
     height: auto;
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease;
 }
 
 
@@ -2640,3 +2938,7 @@ body.keyboard-open #chat-input-container {
 #send-btn:hover {
     background-color: #f06c26;
 } */
+/* ─── Chat-input info line ──────────────────────────────────── */
+/* ─── Glue a one-line info note just above the input bar ───────────── */
+
+

@@ -1,6 +1,6 @@
 // www/static/scriptsBU.js
 $(document).ready(function() {
-    const serverUrl = 'https://8c31be54e6fac00f.ngrok.app';
+    const serverUrl = 'https://olierlagrace.ngrok.app/';
 
     // Detect the platform using Capacitor
     const capPlatform = (typeof Capacitor !== 'undefined') ? Capacitor.getPlatform() : 'web';

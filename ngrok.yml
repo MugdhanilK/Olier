@@ -1,8 +1,21 @@
+# Olier
+# Infrastructure
+# Ngrok Tunnel
+#
+
 version: 2
-web_addr: 0.0.0.0:4043
 authtoken: 2Y3YaumiDZtx9FEzPCfrWHVQf1x_4SyQTQrvcZjrgMppokXaz
+web_addr: 0.0.0.0:4042
 tunnels:
   olier-ui:
     proto: http
-    addr: localhost:80
-    hostname: 8c31be54e6fac00f.ngrok.app
+    addr: localhost:8501
+    hostname: olierlagrace.ngrok.app
+    # use google to provide authentication via oauth
+    oauth:
+      provider: google
+      scopes:
+        - https://www.googleapis.com/auth/userinfo.profile
+        - https://www.googleapis.com/auth/userinfo.email
+      client_id: 272987715198-r4demijglt52vno4hfm35tdoaanvj3ci.apps.googleusercontent.com
+      client_secret: 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

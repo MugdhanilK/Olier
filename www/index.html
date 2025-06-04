@@ -13,17 +13,138 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&amp;display=swap" rel="stylesheet" />
     <link href="static/styles.css" rel="stylesheet" />
+    <style>
+        /* Simple style to display two cards side by side */
+        /* Container row for the two style cards */
+        sup .badge.badge-secondary {
+            font-size: .65em;
+            vertical-align: super;
+            /* keeps it tight above the line */
+        }
+
+        .style-cards-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            /* stack on smaller screens */
+            gap: 2rem;
+            margin-top: 2rem;
+            transition: background 0.2s ease;
+        }
+
+        /* Olier card’s general style */
+        .style-card-olier {
+            background: #fff;
+            border: 1px solid #f1ecec;
+            border-radius: 6px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 240px;
+            height: 190px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: box-shadow 0.6s ease;
+            cursor: pointer;
+            /* so user sees it's clickable */
+
+        }
+
+        /* Seeking card’s general style */
+        .style-card {
+            background: #fff;
+            border: 1px solid #f1ecec;
+            border-radius: 6px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            width: 250px;
+
+            padding: 1.5rem;
+            text-align: center;
+            transition: box-shadow 0.6s ease;
+            cursor: pointer;
+            /* so user sees it's clickable */
+
+        }
+
+        .style-card:hover {
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.20);
+        }
+
+        /* Simple avatar placeholder */
+        .style-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            margin: 0 auto 1rem;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Header styling for the “Choose Your Olier Style” text */
+        .olier-style-header {
+            text-align: center;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* This is the “golden glow” for the selected card (original definition) */
+        .selected-card {
+            background-color: #fffae5;
+            /* pale gold background */
+            border-color: #e8c800;
+            /* more golden border, optional */
+            box-shadow: 0 4px 8px rgba(232, 200, 0, 0.4);
+            /* subtle golden shadow */
+        }
+
+        /* ADD THIS NEW RULE for the Seek scope cards when selected */
+        .search-options-dropdown-frame .style-card2.style-cards.selected-card {
+            background-color: #fffae5;
+            /* Consistent pale gold background */
+            border: 1px solid #e8c800;
+            /* Explicitly set the full golden border */
+            /* Optional: For a more prominent glow, you could use a thicker border: */
+            /* border: 2px solid #e8c800; */
+            transition: box-shadow 0.6s ease;
+            box-shadow: 0 4px 8px rgba(232, 200, 0, 0.4);
+            /* Consistent golden shadow */
+        }
+
+        /* Define the spin animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Apply the animation to the image */
+        .rotate {
+            animation: spin 2s linear infinite;
+            /* Adjust the duration as needed */
+            transform-origin: center;
+            width: 24px;
+            /* Adjust size as needed */
+            height: 24px;
+        }
+    </style>
 </head>
 
 <body>
     <!-- Container start : only for search-->
 
-    <div class="container search-container">
+    <div class="container" id="search-view-container">
+
+        <!-- Modified Header Section with Main Menu Button -->
         <div class="search-space">
+
+            <!-- www/indexBU.html -->
             <div class="search-image">
                 <button aria-expanded="false" aria-haspopup="true" id="main-menu-btn">
                     <div class="olier-logo">
-                        <img alt="Search Engine Logo" class="round-image" src="static/Original/oliersearch.png" />
+                        <img alt="Search Engine Logo" class="round-image" src="static/oliersearch.png" />
                         <span class="lier-text">lier</span>
                     </div>
                 </button>
@@ -32,9 +153,9 @@
                     const mainMenuBtn = document.getElementById("main-menu-btn");
                     if (mainMenuBtn) {
                         mainMenuBtn.addEventListener("click", function () {
-                            // Replace with your actual video link or functionality
-                            // window.open("YOUR_VIDEO_LINK_HERE", "_blank");
-                            console.log("Main menu button clicked - video link placeholder");
+                            // Open the window directly on the first click
+                            window.open("https://youtu.be/otECbl2kOuc&autoplay=1", "_blank");
+                            console.log("Main menu button clicked - opening video link");
                         });
                     }
                 </script>
@@ -45,8 +166,14 @@
                 </button>
             </div>
 
-            <div aria-labelledby="settings-menu-btn" class="settings-menu-dropdown" id="settings-menu-dropdown"
+
+
+            <!-- Settings Menu Content -->
+
+            <!-- SETTINGS DROPDOWN MENU -->
+            <div class="settings-menu-dropdown" id="settings-menu-dropdown" aria-labelledby="settings-menu-btn"
                 role="menu">
+                <!-- Dropdown Header -->
                 <div class="main-menu-header">
                     <div class="header-text">Settings Menu</div>
                     <div class="header-actions">
@@ -56,7 +183,369 @@
                     </div>
                 </div>
 
+                <div class="card mb-3">
+                    <div class="card-header">
+                        AI Style
+                    </div>
+                    <!-- CHOOSE YOUR OLIER STYLE HEADER -->
+                    <h4 class="olier-style-header">Choose Your Olier Style</h4>
 
+                    <!-- TWO SIDE-BY-SIDE CARDS -->
+                    <div class="style-cards-row">
+                        <!-- PLAIN OLIER CARD -->
+                        <div class="style-card-olier" id="plain-olier-card">
+                            <div class="style-avatar" style="background-image: url('static/olier.png');">
+                            </div>
+                            <h5>Plain Olier</h5>
+                        </div>
+
+                        <!-- POETIC OLIER CARD (SELECTED BY DEFAULT) -->
+                        <div class="style-card-olier" id="poetic-olier-card">
+                            <div class="style-avatar" style="background-image: url('static/olier.png');">
+                            </div>
+                            <h5>Poetic Olier</h5>
+                        </div>
+                    </div>
+                    <br />
+                    <!-- Speedy Mode Toggle -->
+                    <div class="text-center">
+                       <!-- <label class="mb-0 align-items-center">
+                            <input type="checkbox" name="speedy-mode" value="speedy" />
+                            Speedy Mode 
+                        </label>-->
+                       <!-- <label class="mb-0 align-items-center">
+                        <br />
+                        <small class="text-muted">
+                            In speedy mode, Olier answers faster but less comprehensively and accurately. Olier is
+                            unable to search online in this mode.
+                        </small>
+                        <br />-->
+                        <!-- Hidden input if needed -->
+                        <input type="hidden" id="selectedStyle" value="poetic" />
+                    </div>
+                </div>
+                <!-- ─────────────────────────  SEEK SCOPE  ───────────────────────── -->
+                <!-- /.settings-section -->
+
+                <!-- Hidden input if needed -->
+                <!--==================================-->
+                <!--<span class="badge badge-secondary">Beta</span>-->
+
+
+
+                <!--THEME SECTION (BETA)-->
+
+                <!--<div class="card mb-3">
+                    <div class="card-header">
+                        Customise Experience <span class="badge badge-secondary">Beta</span>
+                    </div>
+
+                    <style>
+                        /* Each row of cards (two per row) */
+                        .style-cards-row {
+                            display: flex;
+                            justify-content: center;
+                            gap: 20px;
+                            /* space between cards */
+                            margin-bottom: 20px;
+                        }
+
+                        /* The label wraps everything but has no visible styling */
+
+
+                        /* The actual “card” look is in .card-body */
+                        .style-cards {
+                            background-color: #fff;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                            width: 250px;
+                            /* adjust to desired width */
+                            padding: 20px;
+                            text-align: center;
+                            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+                        }
+
+                        /* Circular avatar image */
+                        .theme-avatar {
+                            width: 80px;
+                            height: 80px;
+                            margin: 0 auto 15px;
+                            border-radius: 50%;
+                            background-size: cover;
+                            background-position: center;
+                        }
+
+                        /* Hide the radio input but keep it clickable via the label */
+                        .style-cards input[type="radio"] {
+                            display: none;
+                        }
+
+                        /* When the radio is checked, change the card’s background to golden */
+                        .style-cards input[type="radio"]:checked~.card-body {
+                            background-color: #fff3bf;
+                            /* soft golden */
+                            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+                        }
+                    </style>-->
+                <!-- Aesthetic Style (Card) -->
+                <!-- Row 1: Original & Indian -->
+                <!--<div class="style-cards-row">-->
+                <!-- Original -->
+                <!-- <label class="style-card style-cards">
+                            <input type="radio" name="aesthetic-style" value="original" hidden checked>
+                            <div class="card-body">
+                                <div class="theme-avatar" style="background-image: url('static/Original.png');"></div>
+                                <h4>Original</h4>
+                                <p>Classic and straightforward design.</p>
+                            </div>
+                        </label>-->
+
+                <!-- Indian -->
+                <!--<label class="style-card style-cards">
+                            <input type="radio" name="aesthetic-style" value="indian" hidden>
+                            <div class="card-body">
+                                <div class="theme-avatar" style="background-image: url('static/Indian.png');"></div>
+                                <h4>Indian</h4>
+                                <p>Warm, culturally rich aesthetics.</p>
+                            </div>
+                        </label>
+                    </div>-->
+
+                <!-- Row 2: Far Eastern & Modern -->
+                <!-- <div class="style-cards-row">-->
+                <!-- Far Eastern -->
+                <!--<label class="style-card style-cards">
+                            <input type="radio" name="aesthetic-style" value="far-eastern" hidden>
+                            <div class="card-body">
+                                <div class="theme-avatar" style="background-image: url('static/Far-Eastern.png');">
+                                </div>
+                                <h4>Far Eastern</h4>
+                                <p>Minimalistic and balanced design.</p>
+                            </div>
+                        </label>-->
+
+                <!-- Modern -->
+                <!--  <label class="style-card style-cards">
+                            <input type="radio" name="aesthetic-style" value="modern" hidden>
+                            <div class="card-body">
+                                <div class="theme-avatar" style="background-image: url('static/Modern.png');"></div>
+                                <h4>Modern</h4>
+                                <p>Contemporary and clean aesthetics.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>-->
+
+
+
+                <!-- Font Size (Card) -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Font Size
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="d-flex flex-column align-items-center">
+
+                            <!-- Preview Text -->
+                            <div id="font-preview" class="mb-3"
+                                style="font-size: 16px; transition: font-size 0.3s ease;">
+                                Aa
+                            </div>
+
+                            <!-- Font Buttons -->
+                            <div class="font-buttons-wrapper d-flex justify-content-center align-items-center">
+                                <button aria-label="Decrease Font Size"
+                                    class="btn btn-outline-primary btn-sm rounded-circle mr-3" id="decrease-font-btn"
+                                    style="width: 40px; height: 40px;">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+
+                                <button aria-label="Increase Font Size"
+                                    class="btn btn-outline-primary btn-sm rounded-circle" id="increase-font-btn"
+                                    style="width: 40px; height: 40px;">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    const increaseBtn = document.getElementById('increase-font-btn');
+                    const decreaseBtn = document.getElementById('decrease-font-btn');
+                    const fontPreview = document.getElementById('font-preview');
+
+                    // Initial font size (in px)
+                    let currentSize = 16;
+
+                    // Increase font size
+                    increaseBtn.addEventListener('click', () => {
+                        currentSize = Math.min(currentSize + 1, 36); // example upper limit
+                        fontPreview.style.fontSize = currentSize + 'px';
+                    });
+
+                    // Decrease font size
+                    decreaseBtn.addEventListener('click', () => {
+                        currentSize = Math.max(currentSize - 1, 10); // example lower limit
+                        fontPreview.style.fontSize = currentSize + 'px';
+                    });
+                </script>
+
+                <style>
+                    /* Nudge Animation */
+                    @keyframes nudge {
+                        0% {
+                            transform: translateX(0);
+                        }
+
+                        25% {
+                            transform: translateX(-3px);
+                        }
+
+                        50% {
+                            transform: translateX(3px);
+                        }
+
+                        75% {
+                            transform: translateX(-3px);
+                        }
+
+                        100% {
+                            transform: translateX(0);
+                        }
+                    }
+
+                    .nudge {
+                        animation: nudge 1s ease-in-out infinite;
+                    }
+
+                    .feedback-image {
+                        width: 60px;
+                        transition: transform 0.2s ease;
+                    }
+
+                    .feedback-image:hover {
+                        transform: scale(1.1);
+                    }
+
+                    /* Floating Feedback Button (Optional) */
+                    .floating-feedback-btn {
+                        position: fixed;
+                        bottom: 20px;
+                        right: 20px;
+                        z-index: 9999;
+                        border-radius: 50%;
+                        padding: 15px;
+                    }
+                </style>
+                <!-- Feedback (Card) -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        Feedback
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <!-- Interactive Feedback Image -->
+                            <img src="static/form.png" alt="Feedback illustration" class="feedback-image mr-3 nudge" />
+                            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfNGBBtCf87Y60o6q9kHG04-eYeKGaXEImdGNGjoqeRPMpmJQ/viewform"
+                                target="_blank" class="feedback-link">
+                                <button id="feedback-btn" class="btn btn-primary">Share Feedback</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- jQuery, Popper.js, and Bootstrap JS -->
+                <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                <script src="https://unpkg.com/bowser@2/dist/bundled.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/markdown-it@13/dist/markdown-it.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+                <!-- Example "Save" or "Apply" Button (Optional) 
+                     If your settings are automatically applied, you can remove this entire block. -->
+                <!--<div class="text-right pr-3 pb-3">
+                    <button class="btn btn-success">Apply Settings</button>
+                </div>-->
+
+            </div>
+            <script>
+                // ─────────────────────────────────────────────────────────────
+                //  INSTANT-SETTINGS SECTION
+                //  This replaces the now-removed “Apply Settings” button logic.
+                // ─────────────────────────────────────────────────────────────
+                // ─────────────────────────────────────────────
+                //  TEMPORARY STUBS – prevent ReferenceErrors
+                //  Replace the inside of each function later
+                //  with your real behaviour.
+                // ─────────────────────────────────────────────
+                function setOlierStyle(style) { /* TODO: switch GPT prompt style */ }
+                function setThemePalette(theme) { /* TODO: swap CSS variables */ }
+                function toggleSpeedyMode(enabled) { /* TODO: flip a flag for your app */ }
+                function setChatFontSize(px) { /* TODO: adjust root font-size */ }
+
+                function updateStyleCardHighlight() {
+                    document.querySelectorAll('.style-card').forEach(card => {
+                        const radio = card.querySelector('input[type="radio"]');
+                        if (radio && radio.checked) {
+                            card.classList.add('selected');
+                        } else {
+                            card.classList.remove('selected');
+                        }
+                    });
+                }
+
+                // 1. Central routine – gather what the user just picked and apply it.
+                function applyCurrentSettings() {
+                    updateStyleCardHighlight();          // <<< new
+
+                    // a) AI response flavour
+                    const chosenStyle = document.getElementById('selectedStyle').value;            // 'plain' | 'poetic'
+                    // b) UI theme / colour palette
+                    const chosenAesthetic = document.querySelector('input[name="aesthetic-style"]:checked')?.value; // 'original' | …
+                    // c) Speedy-mode flag
+                    const speedyOn = document.querySelector('input[name="speedy-mode"]').checked;
+                    // d) Font scale that the preview buttons keep in `currentSize`
+                    //    (currentSize is already declared earlier in your file)
+
+                    // ★ Call (or write) helper functions that actually change your app. ★
+                    setOlierStyle(chosenStyle);           // already present in most builds
+                    setThemePalette(chosenAesthetic);     // implement if you haven't yet
+                    toggleSpeedyMode(speedyOn);   // implement or reuse existing one
+                    setChatFontSize(currentSize);         // if you want font scaling globally
+                }
+
+                // 2.  Attach the routine to every interactive control.
+                //    – AI-style cards (already clickable)
+                document.querySelectorAll('.style-card')
+                    .forEach(card => card.addEventListener('click', applyCurrentSettings));
+
+                //    – Radio buttons for “Aesthetic style”
+                document.querySelectorAll('input[name="aesthetic-style"]')
+                    .forEach(radio => radio.addEventListener('change', applyCurrentSettings));
+
+                //    – Speedy-mode toggle       - (Remove the Comment if you want to use it)
+                
+           //     document.querySelector('input[name="speedy-mode"]')
+           //         .addEventListener('change', applyCurrentSettings);
+
+                //    – Font-size ± buttons
+                document.getElementById('increase-font-btn')
+                    .addEventListener('click', applyCurrentSettings);
+                document.getElementById('decrease-font-btn')
+                    .addEventListener('click', applyCurrentSettings);
+
+            </script>
+
+
+            <!-- END SETTINGS DROPDOWN MENU -->
+
+            <!--
                 <div class="settings-section">
                     <h2 class="section-title">AI Style</h2>
                     <ul>
@@ -178,115 +667,791 @@
                     </div>
                 </div>
 
+            </div>-->
+            
+            <style>
+                #query {
+                    /* visual style copied from chat textarea */
+                    line-height: 1.5em;
+                    min-height: 1.5em;
+                    /* 1 line  */
+                    max-height: 9em;
+                    /* 3 lines */
+                    overflow-y: auto;
+                    /* scroll after 3 lines */
+                    resize: none;
+                    /* don’t let the user drag-resize */
+                    white-space: pre-wrap;
+                    /* wrap like normal text */
+                }
+            </style>
+            <script>
+                function autoResizeQuery() {
+                    const q = document.getElementById('query');
+                    const lineH = parseInt(getComputedStyle(q).lineHeight) || 20;
+                    const maxH = lineH * 6;            // ⬅︎ 6 lines instead of 3
+                    q.style.height = 'auto';
+                    q.style.height = Math.min(q.scrollHeight, maxH) + 'px';
+                    q.style.overflowY = q.scrollHeight > maxH ? 'auto' : 'hidden';
+                }
+
+            </script>
+
+
+            <div class="search-container mt-3">
+                <div class="d-flex justify-content-center mb-3">
+                    <label class="switch">
+                        <input id="searchToggle" type="checkbox" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <textarea id="query" class="form-control selected-card;" rows="1"
+                    placeholder="Find quotes from Sri Aurobindo &amp; the Mother!"
+                    onfocus="this.style.textAlign='left'; this.placeholder='';" onblur="if(!this.value){this.style.textAlign='center';
+                                    this.placeholder='Find quotes from Sri Aurobindo &amp; the Mother!';}">
+</textarea>
+
+                <button class="btn btn-primary" id="search-btn">Seek</button>
+
+                <style>
+                    /* In your index.html <style> section or static/styles.css */
+    .search-options-dropdown-frame {
+        
+    background: transparent !important; 
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+     width: calc( (10.15rem * 3) + (0.5rem * 2) + (0.625rem * 2) );
+    max-width: 55%; /* Existing constraint */  
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.625rem;
+     
+    transition: max-height 0.4s ease-out,
+                opacity 0.3s ease-out,
+                margin-top 0.4s ease-out,
+                padding-bottom 0.4s ease-out,
+                visibility 0s linear 0.4s;
+    margin-top: 0.8375rem;
+    position: relative;
+    /* overflow: hidden; /* This is primarily for the vertical collapse animation.
+                         If min-width makes it wider than 65%, page scroll will handle it. */
+    max-height: 41.75rem; /* Existing max-height for when it's open */
+    opacity: 1;
+    visibility: visible;
+    border-radius: 0.5rem; /* Changed from 8px to be font-size responsive */
+ transition: all 0.4s ease-in-out;
+}
+.search-options-dropdown-frame .style-cards-row.seek-options-content {
+    display: flex;
+    flex-wrap: wrap; /* MODIFIED: Ensures cards stay in one line */
+    justify-content: center; /* Centers the group of cards if the container is wider */
+    gap: 0.5rem; 
+    padding-left: 0rem;
+    padding-right: 0rem;
+    padding-bottom: 1rem;
+    
+    
+    /* Styles for collapse/expand animation - kept from original */
+    max-height: 0; 
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden; /* Hides vertical overflow during transition */
+   
+    transition: max-height 0.4s ease-out, padding-top 0.4s ease-out, padding-bottom 0.4s ease-out;
+}
+
+                    .search-options-dropdown-frame.inner-collapsed {
+                        padding-bottom: 0;
+                        
+                    }
+
+                    .search-options-dropdown-frame.hidden-by-toggle {
+                        /* Properties for the "hidden" state */
+                        max-height: 0;
+                        opacity: 0;
+                        margin-top: 0;
+                        visibility: hidden;
+                        /* Target state */
+
+                        box-shadow: none;
+
+                        /* Transitions that apply when .hidden-by-toggle is ADDED (i.e., hiding) */
+                        /* This rule overrides the base transition behavior when this class becomes active */
+                        transition: max-height 0.4s ease-out,
+                            opacity 0.3s ease-out,
+                            margin-top 0.4s ease-out,
+                            visibility 0s linear 0.4s;
+                        /* Delay visibility:hidden until other animations complete */
+                        /* The 0.4s delay should match the longest other transition (max-height or margin-top) */
+
+                    }
+
+                    /* Ensure the card-header and olier-style-header within the frame look good */
+                    .search-options-dropdown-frame .card-header {
+                        background-color: transparent;
+                        /* Make it blend with the frame's background */
+                        border-bottom: 1px solid #eee;
+                        /* Light separator */
+                        padding: 0.75rem 1rem;
+                        font-size: 1.0rem;
+                        color: #737272; /* Color for Select Works to "Seek" Header*/
+                        text-align: center;
+                        /* Explicitly center the header text */
+                    }
+
+                    .search-options-dropdown-frame .olier-style-header {
+                        margin-top: 0.1rem;
+                        /* Adjust spacing */
+                        margin-bottom: 1.5rem;
+                        font-size: 0.7rem;
+                        color: #444;
+                    }
+
+                    /* === Styles for Search Options Dropdown Frame Cards (Revised for Square Buttons) === */
+
+                    /* Style for the row containing the cards */
+                    .search-options-dropdown-frame .style-cards-row {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        /* CHANGED: 'center' often looks better when items wrap to multiple lines */
+                        gap: 1rem;
+                        padding-left: 0.5rem;
+                        /* Horizontal padding */
+                        padding-right: 0.5rem;
+                        /* Horizontal padding */
+
+                        /* --- Styles for .seek-options-content behavior --- */
+                        max-height: 0;
+                        /* Start collapsed */
+                        padding-top: 0;
+                        padding-bottom: 0;
+                        overflow: hidden;
+                        transition: max-height 0.4s ease-out, padding-top 0.4s ease-out, padding-bottom 0.4s ease-out;
+                    }
+
+                    /* Style for each card (button) */
+                    .search-options-dropdown-frame .style-card2.style-cards:hover {
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        /* Subtle shadow on hover */
+                        background-color: #e6f7ff;
+                        /* Light blue background on hover */
+
+                    }
+                    .search-options-dropdown-frame .style-card2.style-cards {
+                        background: #f0f0f0;
+                        border: 1px solid #c4eaf3;
+                        
+                        border-radius: 8px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+                        width: 10.15rem;
+                        /* CHANGED from 180px */
+                        height: 8.375rem;
+                        /* CHANGED from 150px */
+                        padding: 0.5rem;
+                       
+                        transition: box-shadow 0.3s ease;
+                        cursor: pointer;
+                        display: flex; 
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        flex-shrink: 0; /* ADDED: Prevents cards from shrinking below their defined width */
+                        flex-grow: 0;   /* Existing: good, prevents them from growing unnecessarily */
+     }
+                    .search-options-dropdown-frame label.style-card2.style-cards { /* Made selector more specific */
+                        /* These !important might be needed if other global styles for label.style-card2 interfere */
+                        width: 7.45rem !important; 
+                        height: 6.5rem !important;
+                        max-height: none !important; /* Ensure it doesn't get overridden */
+                        min-width: auto !important;  /* Ensure it doesn't get overridden */
+                        text-align: center !important; /* Ensure it doesn't get overridden */
+                    
+
+                    }
+
+                    /* Styles for the .card-body (direct child of the label/card) */
+                    .search-options-dropdown-frame .style-card2.style-cards .card-body {
+                        display: flex;
+                        flex-direction: column;
+                        /* Avatar and text-content stacked vertically */
+                        align-items: center;
+                        /* Center avatar and text block horizontally */
+                        justify-content: center;
+                        /* Center content vertically */
+                        width: 100%;
+                        height: 100%;
+                        /* Ensure card-body takes full height of the card */
+                    }
+
+                    /* Styles for the avatar */
+                    .search-options-dropdown-frame .style-card2.style-cards .style-avatar {
+                        width: 2rem;
+                        /* e.g., 48px */
+                        height: 2rem;
+                        border-radius: 50%;
+                        background-size: cover;
+                        background-position: center;
+                        margin: 0 auto 0.5rem auto;
+                        /* Center avatar and add space below */
+                        flex-shrink: 0;
+                        box-shadow: 0 6px 15px rgba(0, 209, 232, 0.3);
+                        /* Adjusted shadow */
+                        
+                    }
+
+                    /* Styles for the text-content block (wrapper for h5, hr, p) */
+                    .search-options-dropdown-frame .style-card2.style-cards .text-content {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        /* Center text content */
+                        flex-grow: 1;
+                        min-width: 0;
+                        width: 100%;
+                        /* Ensure text content can use available width */
+                    }
+
+                    /* Styles for the title (h5) within .text-content */
+                    .search-options-dropdown-frame .style-card2.style-cards .text-content h5 {
+                        font-size: 0.6rem;
+                        /* Adjusted font size */
+                        font-weight: bold;
+                        margin-top: 0;
+                        margin-bottom: 0rem;
+                        color: #333;
+                        white-space: nowrap;
+                        /* Allow title to wrap */
+                        text-align: center;
+                    }
+
+                    /* Styles for the horizontal rule (hr) */
+                    .search-options-dropdown-frame .style-card2.style-cards .text-content hr {
+                        width: 60%;
+                        /* Make hr slightly shorter */
+                        border: 0;
+                        border-top: 1px solid #eee;
+                        margin-top: 0.2rem;
+                        margin-bottom: 0.3rem;
+                        
+                    }
+
+                    /* Styles for the descriptive paragraph (p) */
+                    .search-options-dropdown-frame .style-card2.style-cards .text-content p {
+                        font-size: 0.50rem;
+                        /* Already rem, good */
+                        color: #555;
+                        line-height: 1.2;
+                        margin-bottom: 0;
+                        white-space: nowrap;
+                        text-align: center;
+
+                    }
+
+                    /* Override any conflicting global .style-card2 properties if needed */
+                    .search-options-dropdown-frame label.style-card2 {
+                        max-height: none !important;
+                        min-width: auto !important;
+                        text-align: center !important;
+                        width: 10.25rem !important;
+                        /* CHANGED from 180px */
+                        height: 8.375rem !important;
+                        /* CHANGED from 150px */
+                    }
+
+                    /* Ensure selected card styles are applied correctly */
+                    .search-options-dropdown-frame .style-card2.style-cards.selected-card {
+                        background-color: #fffae5;
+                        /* Consistent pale gold background */
+                        border-color: #ffdd00;
+                        /* Explicitly set the full golden border */
+                        box-shadow: 0 4px 10px rgba(232, 200, 0, 0.4);
+                        /* Consistent golden shadow */
+                         border: 2px solid #ffdd00;
+                    }
+
+                    .search-options-dropdown-frame .card-header.seek-options-header {
+                        cursor: pointer;
+                        /* Indicate it's clickable */
+                        display: flex;
+                        /* Align icon and text */
+                        align-items: center;
+                        /* Vertically align icon and text */
+                        justify-content: center;
+                        /* Center the content */
+                        vertical-align: middle;
+                        /* For positioning the icon */
+                        padding: 0.5rem 0.75rem 0.5rem 1rem;     
+                        border-bottom: 1px solid #eee;
+                        /* This is the line you want to hide up to */
+                        transition: border-bottom-width 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
+                    }
+
+                    .search-options-dropdown-frame .card-header.seek-options-header:hover {
+                          border-bottom-width: 3px;     /* Make the line slightly thicker */
+                          border-bottom-color: #bbb;    /* Make the line slightly darker for more prominence */
+                          box-shadow: 0 4px 10px rgba(232, 200, 0, 0.4);
+                                  /* You can adjust this color, e.g., #aaa or a theme color */
+                                  
+}
+                    .search-options-dropdown-frame .card-header.seek-options-header .dropdown-icon {
+                        font-size: 0.8em;
+                        /* Adjust icon size as needed */
+
+                        transition: transform 0.3s ease;
+                        /* Smooth rotation for the icon */
+                        position: absolute;
+                        /* Position icon absolutely */
+                        left: 15px;
+                        /* Adjust as needed for positioning from the left */
+                    }
+
+                    .search-options-dropdown-frame .card-header.seek-options-header.collapsed .dropdown-icon {
+                        transform: rotate(-90deg);
+                        /* Rotate icon when collapsed */
+                    }
+
+                    .search-options-dropdown-frame .seek-options-content {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        gap: 1rem;
+                        padding-left: 0.5rem;
+                        padding-right: 0.5rem;
+
+                        /* Initial collapsed state */
+                        max-height: 0;
+                        padding-top: 0;
+                        padding-bottom: 0;
+                        overflow: hidden;
+                        transition: max-height 0.4s ease-out, padding-top 0.4s ease-out, padding-bottom 0.4s ease-out;
+                    }
+
+                    .search-options-dropdown-frame .seek-options-content.open {
+                        /* max-height: 500px; */
+                        /* Adjust as needed to fit content, or set dynamically */
+                        /* Add padding when open */
+                        padding-top: 0rem;
+                        /* Or your desired padding */
+                        padding-bottom: 0.1rem;
+                        /* Or your desired padding */
+                    }
+                    /* === Media Query for Mobile Screens (Single Line, Smaller, Scrollable Cards) === */
+@media (max-width: 1300px) {
+.search-options-dropdown-frame {
+        /* Allow the frame to use more of the mobile screen width */
+        max-width: 85%;}
+.search-options-dropdown-frame .style-cards-row.seek-options-content.open {
+        max-height: 20rem !important; /* Force height to accommodate 3 stacked cards */
+                                   /* Adjust this value if needed based on actual content */
+    }
+    /* --- Styles for the container of the three cards (ensure they stack) --- */
+    .search-options-dropdown-frame .style-cards-row.seek-options-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important; 
+    }
+.search-options-dropdown-frame .style-card2.style-cards#scope-all-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+    .search-options-dropdown-frame .style-card2.style-cards#scope-mother-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+        .search-options-dropdown-frame .style-card2.style-cards#scope-aurobindo-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+    /* --- Styles for the individual cards (making them wide) --- */
+    .search-options-dropdown-frame .style-card2.style-cards,
+    .search-options-dropdown-frame label.style-card2.style-cards {
+        width: 100% !important;
+        max-width: 350px;
+        height: auto !important;
+        min-height: 0.5rem; /* Adjusted min-height slightly as text content might be more compact horizontally */
+        margin-bottom: 0 !important;
+        
+        display: flex !important;
+        flex-direction: row !important; /* Avatar and text-content side-by-side */
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: center !important;
+        /* ... other card styles like border, background, etc. ... */
+    }
+
+    .search-options-dropdown-frame .style-card2.style-cards .card-body {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        padding: 0 !important;
+        text-align: center !important;
+    }
+
+    .search-options-dropdown-frame .style-card2.style-cards .style-avatar {
+        width: 1rem !important; /* Adjusted avatar size slightly */
+        height: 1rem !important;
+        margin: 0 0.75rem 0 0 !important; /* Adjusted margin for tighter layout */
+        flex-shrink: 0 !important;
+        /* ... other avatar styles ... */
+    }
+
+    /* --------------------------------------------------------------------
+    START: MODIFIED TEXT FORMATS FOR SINGLE LINE (max-width: 767px)
+    --------------------------------------------------------------------
+    This section targets the text elements within your wide cards.
+    H5 and P will be on the same line, HR is removed.
+    */
+
+    /* --- Text Content Area --- */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content {
+        display: flex !important;
+        flex-direction: row !important;    /* Lays out H5 and P side-by-side */
+        align-items: baseline !important;  /* Aligns H5 and P along their text baseline */
+        justify-content: center !important; 
+        flex-grow: 1 !important;
+        gap: 0.4rem !important;            /* Space between H5 and P */
+        overflow: hidden;                  /* Prevents content from breaking out if too long */
+    }
+
+    /* Style for the card titles (<h5>) - now inline with <p> */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content h5 {
+        font-size: 0.7rem !important;
+        font-weight: bold !important;
+        color: #2c3e50 !important;
+        white-space: nowrap !important;     /* Prevents the H5 text itself from wrapping */
+        margin: 0 !important;               /* Remove default margins */
+        padding: 0 !important;
+        flex-shrink: 0; /* Prevents H5 from shrinking if P is long */
+        text-align: center;
+    }
+
+    /* Remove the horizontal rule (<hr>) */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content hr {
+        display: none !important;
+    }
+
+    /* Style for the card descriptions (<p>) - now inline with <h5> */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content p {
+        font-size: 0.5rem !important;
+        line-height: 1.3 !important;        /* Normal line-height for potentially wrapped text */
+        color: #34495e !important;
+        white-space: nowrap !important;
+        margin: 0 !important;               /* Remove default margins */
+        padding: 0 !important;
+        text-align: center;
+        padding-left: 50px;
+        /* The paragraph will take the remaining space and wrap as necessary */
+    }
+
+    /* Style for the Beta badge (<sup><span class="badge">) inside paragraphs */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content p sup .badge {
+        font-size: 0.7em !important;
+        vertical-align: baseline; /* Adjust if 'super' looks off with baseline alignment */
+        position: relative;
+        top: -0.3em; /* Fine-tune vertical position of badge */
+        padding: 0.15em 0.3em !important;
+    }
+
+    /* ------------------------------------------------------------------
+    END: MODIFIED TEXT FORMATS FOR SINGLE LINE (max-width: 767px)
+    ------------------------------------------------------------------
+    */
+
+    /* Ensure selected card styles are still effective */
+    .search-options-dropdown-frame .style-card2.style-cards.selected-card {
+        /* ... same selected styles as before ... */
+        background-color: #fffae5 !important;
+        border-color: #e8c800 !important;
+        box-shadow: 0 4px 8px rgba(232, 200, 0, 0.4) !important;
+    }
+}
+/* Make sure this entire block is within your <style> tags, 
+   and ideally after any general styles or other media queries. */
+
+@media (max-width: 767px) {
+.search-options-dropdown-frame {
+        /* Allow the frame to use more of the mobile screen width */
+        max-width: 90%;}
+
+    .search-options-dropdown-frame .style-cards-row.seek-options-content.open {
+        max-height: 20rem !important; /* Force height to accommodate 3 stacked cards */
+                                   /* Adjust this value if needed based on actual content */
+    }
+    /* --- Styles for the container of the three cards (ensure they stack) --- */
+    .search-options-dropdown-frame .style-cards-row.seek-options-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important; 
+    }
+.search-options-dropdown-frame .style-card2.style-cards#scope-all-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+    .search-options-dropdown-frame .style-card2.style-cards#scope-mother-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+        .search-options-dropdown-frame .style-card2.style-cards#scope-aurobindo-card .text-content p .lotus-emoji {
+        display: none !important;
+    }
+    /* --- Styles for the individual cards (making them wide) --- */
+    .search-options-dropdown-frame .style-card2.style-cards,
+    .search-options-dropdown-frame label.style-card2.style-cards {
+        width: 100% !important;
+        max-width: 480px;
+        height: auto !important;
+        min-height: 0.5rem; /* Adjusted min-height slightly as text content might be more compact horizontally */
+        margin-bottom: 0 !important;
+        
+        display: flex !important;
+        flex-direction: row !important; /* Avatar and text-content side-by-side */
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: center !important;
+        /* ... other card styles like border, background, etc. ... */
+    }
+
+    .search-options-dropdown-frame .style-card2.style-cards .card-body {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        padding: 0 !important;
+        text-align: center !important;
+    }
+
+    .search-options-dropdown-frame .style-card2.style-cards .style-avatar {
+        width: 1rem !important; /* Adjusted avatar size slightly */
+        height: 1rem !important;
+        margin: 0 0.75rem 0 0 !important; /* Adjusted margin for tighter layout */
+        flex-shrink: 0 !important;
+        justify-content: center !important;
+        /* ... other avatar styles ... */
+    }
+
+    /* --------------------------------------------------------------------
+    START: MODIFIED TEXT FORMATS FOR SINGLE LINE (max-width: 767px)
+    --------------------------------------------------------------------
+    This section targets the text elements within your wide cards.
+    H5 and P will be on the same line, HR is removed.
+    */
+
+    /* --- Text Content Area --- */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content {
+        display: flex !important;
+        flex-direction: row !important;    /* Lays out H5 and P side-by-side */
+        align-items: baseline !important;  /* Aligns H5 and P along their text baseline */
+        justify-content: center !important;
+        flex-grow: 1 !important;
+        gap: 0.4rem !important;            /* Space between H5 and P */
+        overflow: hidden;                  /* Prevents content from breaking out if too long */
+    }
+
+    /* Style for the card titles (<h5>) - now inline with <p> */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content h5 {
+        font-size: 0.7rem !important;
+        font-weight: bold !important;
+        color: #2c3e50 !important;
+        white-space: nowrap !important;     /* Prevents the H5 text itself from wrapping */
+        margin: 0 !important;               /* Remove default margins */
+        padding: 0 !important;
+        flex-shrink: 0; /* Prevents H5 from shrinking if P is long */
+        text-align: center;
+    }
+
+    /* Remove the horizontal rule (<hr>) */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content hr {
+        display: none !important;
+    }
+
+    /* Style for the card descriptions (<p>) - now inline with <h5> */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content p {
+        font-size: 0.5rem !important;
+        line-height: 1.3 !important;        /* Normal line-height for potentially wrapped text */
+        color: #34495e !important;
+        white-space: nowrap !important; 
+        margin: 0 !important;               /* Remove default margins */
+        padding: 0 !important;
+        text-align: center;
+        padding-left: 50px;
+        /* The paragraph will take the remaining space and wrap as necessary */
+    }
+
+    /* Style for the Beta badge (<sup><span class="badge">) inside paragraphs */
+    .search-options-dropdown-frame .style-card2.style-cards .text-content p sup .badge {
+        font-size: 0.7em !important;
+        vertical-align: baseline; /* Adjust if 'super' looks off with baseline alignment */
+        position: relative;
+        top: -0.3em; /* Fine-tune vertical position of badge */
+        padding: 0.15em 0.3em !important;
+    }
+
+    /* ------------------------------------------------------------------
+    END: MODIFIED TEXT FORMATS FOR SINGLE LINE (max-width: 767px)
+    ------------------------------------------------------------------
+    */
+
+    /* Ensure selected card styles are still effective */
+    .search-options-dropdown-frame .style-card2.style-cards.selected-card {
+        /* ... same selected styles as before ... */
+        background-color: #fffae5 !important;
+        border-color: #e8c800 !important;
+        box-shadow: 0 4px 8px rgba(232, 200, 0, 0.4) !important;
+    }
+}
+                </style>
+
+                <div class="search-options-dropdown-frame">
+                    <div class="card-header seek-options-header" style="padding-top: 0;"> <span class="dropdown-icon">▼</span>
+                        Select Works to "Seek"
+                    </div>
+                    <div class="style-cards-row seek-options-content" style="margin-top: 4px;">
+
+                        <label class="style-card2 style-cards" id="scope-all-card">
+                            <input type="radio" name="searchScope" value="all" hidden checked>
+                            <div class="card-body">
+                                <div class="style-avatar" style="background-image:url('static/Joint Symbol.png');">
+                                </div>
+                                <div class="text-content">
+                                    <h5>All Works</h5>
+                                    <hr>
+                                    <p>The Mother &amp; Sri Aurobindo<br /><span class="lotus-emoji">🪷</span> </p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="style-card2 style-cards" id="scope-mother-card">
+                            <input type="radio" name="searchScope" value="mother" hidden="">
+                            <div class="card-body">
+                                <div class="style-avatar" style="background-image:url('static/Symbol-the-Mother.jpg');">
+                                </div>
+                                <div class="text-content">
+                                    <h5>The Mother</h5>
+                                    <hr>
+                                    <p>CWM &amp; Mother’s Agenda<br /><span class="lotus-emoji">🪷</span></p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="style-card2 style-cards" id="scope-aurobindo-card">
+                            <input type="radio" name="searchScope" value="aurobindo" hidden="">
+                            <div class="card-body">
+                                <div class="style-avatar"
+                                    style="background-image:url('static/Symbol-of-Sri-Aurobindo.jpg');"></div>
+                                <div class="text-content">
+                                    <h5>Sri Aurobindo</h5>
+                                    <hr>
+                                    <p>CWSA &amp; SABCL<sup><span
+                                                class="badge badge-secondary">Beta</span></sup><br /><span class="lotus-emoji">🪷</span></p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <input type="hidden" id="selectedScope" name="selectedScopeDropdown" value="all">
+                </div>
+</div>
+
+
+
+
+
+                <!--Summarise-->
+                <div class="summary-controls mt-3 mb-3 text-center">
+                    <button class="btn" id="summarize-results-btn" style="display: none;">
+                        Olier Overview?
+                    </button>
+                </div>
+
+                <!-- Loader Overlay -->
+                <div id="loader-overlay"></div>
+
+                <!-- Loader Container -->
+                <div id="loader-container">
+                    <div class="book-loader">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                </div>
+
+                <!-- Sample Questions -->
+                <div class="sample-questions">
+                    <div class="questions-grid vector-sample-questions">
+                        <button class="btn btn-secondary sample-question" type="button">
+                            Explain humility.
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            How can we truly love?
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            "It was the hour before the Gods awake"
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            What is the significance of finding inner peace?
+                        </button>
+                    </div>
+                    <div class="questions-grid keyword-sample-questions">
+                        <button class="btn btn-secondary sample-question" type="button">
+                            The psychic being
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            When mind is still
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            What the soul sees and has experienced, that it knows
+                        </button>
+                        <button class="btn btn-secondary sample-question" type="button">
+                            All problems of existence are essentially problems of Harmony
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search Results -->
+                <div class="list-group" id="results"></div>
+
             </div>
-        </div>
-        <!-- END of .search-space -->
+            <!-- END of .search-space -->
 
-        <div class="search-container mt-3">
-            <div class="d-flex justify-content-center mb-3">
-                <label class="switch">
-                    <input id="searchToggle" type="checkbox" />
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <input autocomplete="off" class="form-control; selected-card;" id="query"
-                onfocus="this.style.textAlign='left'; this.placeholder='';"
-                onblur="if(this.value===''){ this.style.textAlign='center'; this.placeholder='Find quotes from Sri Aurobindo &amp; the Mother!'; }"
-                placeholder="Find quotes from Sri Aurobindo &amp; the Mother!" type="text" />
-
-            <button class="btn btn-primary" id="search-btn">Seek</button>
-        </div>
-
-
-        <!--Summarise-->
-
-        <!-- Inside the body, after the search container -->
-        <div class="summary-controls mt-3 mb-3 text-center">
-            <button class="btn" id="summarize-results-btn" style="display: none;">
-                Olier Overview?
-            </button>
-        </div>
-
-        <!-- Loader Overlay -->
-        <div id="loader-overlay"></div>
-        <!-- Loader Container -->
-        <div id="loader-container">
-            <div class="book-loader">
-                <i class="fas fa-book-open"></i>
-            </div>
-        </div>
-
-        <!-- Sample Questions -->
-        <div class="sample-questions">
-            <div class="questions-grid vector-sample-questions">
-                <button class="btn btn-secondary sample-question" type="button">
-                    Explain humility.
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    How can we truly love?
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    "It was the hour before the Gods awake"
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    What is the significance of finding inner peace?
-                </button>
-            </div>
-            <div class="questions-grid keyword-sample-questions">
-                <button class="btn btn-secondary sample-question" type="button">
-                    The psychic being
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    When mind is still
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    What the soul sees and has experienced, that it knows
-                </button>
-                <button class="btn btn-secondary sample-question" type="button">
-                    All problems of existence are essentially problems of Harmony
-                </button>
-            </div>
-        </div>
-
-        <!-- Search Results -->
-        <div class="list-group" id="results"></div>
-
-    </div>
-    <!-- END of .search-container -->
-
-
-    <!-- now the full-text lives in its own container -->
-    <div class="container fulltext-container">
-
-        <!-- Full-text (restore original structure as sibling) -->
-        <div class="mt-4" id="full-text"></div>
+            <!-- Full-text (restore original structure as sibling) -->
+            <div class="mt-4" id="full-text"></div>
 
 
 
-        <!-- flex-box -->
-        <div id="bottom-flex-box">
-            <div class="flex-container">
-                <!-- Toggle Search Button (Inside Flex Box) -->
-                <button aria-label="Toggle Search" class="toggle_search in-flex-box" type="button">
-                    <div class="toggle-search-logo" role="img" aria-label="Toggle Search"></div>
-                </button>
+            <!-- flex-box -->
+            <div id="bottom-flex-box">
+                <div class="flex-container">
+                    <!-- Toggle Search Button (Inside Flex Box) -->
+                    <button aria-label="Toggle Search" class="toggle_search in-flex-box" type="button">
+                        <!-- MODIFIED: Use img tag -->
+                        <img class="toggle-search-logo" src="static/oliersearchactual.png" alt="Toggle Search">
+
+                        <!-- <div class="toggle-search-logo" role="img" aria-label="Toggle Search"></div>-->
+                    </button>
 
 
-                <!-- Center Content Button -->
-                <button class="in-flex-box flex-box-center-content" aria-label="Open Main Menu" type="button">
-                    <span id="flex-box-book-title">Book Title</span>
-                    <span id="flex-box-chapter-title">Chapter Title</span>
-                </button>
+                    <!-- Center Content Button -->
+                    <button class="in-flex-box flex-box-center-content" aria-label="Open Main Menu" type="button">
+                        <span id="flex-box-book-title">Book Title</span>
+                        <span id="flex-box-chapter-title">Chapter Title</span>
+                    </button>
 
-                <!-- Open Chatbot Button (Inside Flex Box) -->
-                <!-- Open Chatbot Button (Inside Flex Box) -->
-                <button aria-label="Open Chatbot" class="open_chatbot in-flex-box" type="button">
-                    <div class="chatbot-logo" role="img" aria-label="Olier"></div>
-                </button>
-
+                    <!-- Open Chatbot Button (Inside Flex Box) -->
+                    <button aria-label="Open Chatbot" class="open_chatbot in-flex-box" type="button">
+                        <!-- MODIFIED: Use img tag -->
+                        <img class="chatbot-logo" src="static/Olierbutton.png" alt="Olier">
+                    </button>
+                </div>
             </div>
         </div>
         <!-- END of .container -->
+
+
+
         <!-- Loader Overlay for View Detail -->
         <div id="view-detail-loader-overlay">
         </div>
@@ -341,6 +1506,9 @@
             </button>
             <!-- Chat Input Container -->
             <div id="chat-input-container">
+                <p id="info-message">💡 For tricky questions, I may need some time to think hard and look online. Thanks
+                    for waiting! 😊</p>
+
                 <textarea autocomplete="off" id="chat-input" placeholder="Type a message" rows="1"></textarea>
                 <button id="send-btn">
                     <svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -365,9 +1533,10 @@
             </div>
         </div>
 
+
         <!-- Open Chatbot Button (Outside Flex Box) -->
         <button aria-label="Open Chatbot" class="open_chatbot" type="button">
-            <img alt="Olier" class="chatbot-logo" src="static/Original/Olierbutton.png" />
+            <img alt="Olier" class="chatbot-logo" src="static/Olierbutton.png" />
             <span class="chatbot-text">Chat</span>
         </button>
 
@@ -390,16 +1559,6 @@
                     </button>
                 </div>
             </div>
-
-
-
-
-
-
-
-
-
-
 
 
             <!--CWM (Collected Works of the Mother)-->
@@ -33715,482 +34874,483 @@
                         </ul>
                     </ul>
                 </li>
-                <!-- <li class="book-item" data-file-path="static/HTML/Record of Yoga_modified.html" role="menuitem">
-    <div class="book-title" tabindex="0">
-        <span>
-        Record of Yoga
-        </span>
-        <span class="expand-icon">
-        </span>
-    </div>
-    <ul class="nested-list">
-        <li class="nested-item">
-        <a class="cover-link" href="#">
-        Cover
-        </a>
-        </li>
-        <ul class="nested-list">
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Introduction: Sapta Chatusthaya
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#sapta-chatusthaya">
-            Sapta Chatusthaya
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#outline-of-the-seven-chatusthayas-revised-order">
-            Outline of the Seven Chatusthayas (Revised Order)
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#incomplete-notes-on-the-first-chatusthaya">
-            Incomplete Notes on the First Chatusthaya
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Part One: Diary Entries 1909-1912
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-17-25-june-1909">
-            17 - 25 June 1909
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-28-january-17-february-1911">
-            28 January - 17 February 1911
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-13-january-8-february-1912">
-            13 January - 8 February 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-25-july-1912">
-            1 - 25 July 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-12-october-26-november-1912">
-            12 October - 26 November 1912
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Part Two: Record of Yoga 1912-1920
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-26-november-31-december-1912">
-            26 November - 31 December 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-31-january-1913">
-            1 - 31 January 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-14-february-1913">
-            1 - 14 February 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-and-12-april-19-and-21-may-1913">
-            1 and 12 April, 19 and 21 May 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-4-30-june-1913">
-            4 - 30 June 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-11-july-1913">
-            1 - 11 July 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-5-21-september-1913">
-            5 - 21 September 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-22-30-september-1913">
-            22 - 30 September 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-11-23-november-1913">
-            11 - 23 November 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-24-november-2-december-1913">
-            24 November - 2 December 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-12-december-1913">
-            1 - 12 December 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-12-21-december-1913">
-            12 - 21 December 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-22-december-1913-15-january-1914">
-            22 December 1913 - 15 January 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-12-march-14-april-1914">
-            12 March - 14 April 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-15-april-1-june-1914">
-            15 April - 1 June 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-10-june-29-september-1914">
-            10 June - 29 September 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-29-30-september-31-december-1914">
-            29 - 30 September - 31 December 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-january-27-february-1915">
-            1 January - 27 February 1915
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-22-april-26-august-1915">
-            22 April - 26 August 1915
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-19-february-20-march-1916">
-            19 February - 20 March 1916
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-9-january-14-february-1917">
-            9 January - 14 February 1917
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-15-february-31-march-1917">
-            15 February - 31 March 1917
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-15-august-28-september-1917">
-            15 August - 28 September 1917
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-14-28-february-1918">
-            14 - 28 February 1918
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-3-27-march-1918">
-            3 - 27 March 1918
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-20-april-20-may-1918">
-            20 April - 20 May 1918
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-21-may-1-july-1918">
-            21 May - 1 July 1918
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-24-june-14-july-1919">
-            24 June - 14 July 1919
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-15-26-july-1919">
-            15 - 26 July 1919
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-27-july-13-august-1919">
-            27 July - 13 August 1919
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-14-august-24-september-1919">
-            14 August - 24 September 1919
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-29-february-1920">
-            1 - 29 February 1920
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-1-march-10-april-1920">
-            1 March - 10 April 1920
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-7-26-june-1920">
-            7 - 26 June 1920
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-17-19-october-1920">
-            17 - 19 October 1920
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Part Three: Record of Yoga 1926-1927
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#december-1926-6-january-1927-1">
-            December 1926 - 6 January 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-7-january-1-february-1927">
-            7 January - 1 February 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-7-22-april-1927">
-            7 - 22 April 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#c-24-31-october-1927">
-            24 - 31 October 1927
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Part Four: Materials Written by Sri Aurobindo Related Directly to Record of Yoga, c. 1910-1931
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-record-and-record-related-notes">
-            Undated Record and Record - Related Notes
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#sortileges-of-may-and-june-1912">
-            Sortileges of May and June 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-notes-c-november-1912">
-            Undated Notes, c. November 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#draft-programme-of-3-december-1912">
-            Draft Programme of 3 December 1912
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-or-partly-dated-script-1912-1913">
-            Undated or Partly Dated Script, 1912 - 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#sortilege-of-15-march-1913">
-            Sortilege of 15 March [1913]
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#accounts-of-31-may-15-june-1913">
-            Accounts of 31 May - 15 June 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#record-notes-13-and-15-september-1913">
-            Record Notes, 13 and 15 September 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#vedic-experience-14-and-15-december-1913">
-            Vedic Experience, 14 and 15 December 1913
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-notes-c-1914">
-            Undated Notes, c. 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#notes-on-images-seen-in-march-1914">
-            Notes on Images Seen in March 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-script-c-1920">
-            Undated Script, c. 1920
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-notes-c-december-1926">
-            Undated Notes, c. December 1926
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-notes-c-january-1927">
-            Undated Notes, c. January 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#notes-on-physical-transformation">
-            Notes on Physical Transformation
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#diagrams-c-january-1927">
-            Diagrams, c. January 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#miscellaneous-notations">
-            Miscellaneous Notations
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#record-of-drishti-30-july-1927">
-            Record of Drishti, 30 July 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-script-c-1927">
-            Undated Script, c. 1927
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-script-c-1927-1928">
-            Undated Script, c. 1927 - 1928
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#notes-on-prophetic-vision-1929">
-            Notes on Prophetic Vision, 1929
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#diagrams-c-1931">
-            Diagrams, c. 1931
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#undated-script-jottings">
-            Undated Script Jottings
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Part Five: Automatic Writing
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#the-scribblings-c-1907">
-            "The Scribblings", c. 1907
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#yogic-sadhan">
-            Yogic Sadhan
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#automatic-writings-c-1914-first-set">
-            Automatic Writings, c. 1914 (First Set)
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#automatic-writings-c-1914-second-set">
-            Automatic Writings, c. 1914 (Second Set)
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#automatic-writing-c-1920">
-            Automatic Writing, c. 1920
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#automatic-writings-c-1920">
-            Automatic Writings, c. 1920
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item has-children">
-        <div class="part-title" tabindex="0">
-        <span class="expand-icon">
-        </span>
-        Appendixes: Material from Disciples' Notebooks
-        </div>
-        <ul class="nested-list">
-        <li class="nested-item">
-            <a class="chapter-link" href="#miscellaneous-notes-c-1914">
-            Miscellaneous Notes, c. 1914
-            </a>
-        </li>
-        <li class="nested-item">
-            <a class="chapter-link" href="#sapta-chatusthaya-scribal-version">
-            Sapta Chatusthaya - Scribal Version
-            </a>
-        </li>
-        </ul>
-        </li>
-        <li class="nested-item">
-        <a class="chapter-link" href="#note-on-the-texts">
-        Note on the Texts
-        </a>
-        </li>
-        </ul>
-    </ul>
-    </li> -->
+                <li class="book-item" data-file-path="static/HTML/Record of Yoga_modified.html" role="menuitem">
+                    <div class="book-title" tabindex="0">
+                        <span>
+                            Record of Yoga
+                        </span>
+                        <span class="expand-icon">
+                        </span>
+                    </div>
+                    <ul class="nested-list">
+                        <li class="nested-item">
+                            <a class="cover-link" href="#">
+                                Cover
+                            </a>
+                        </li>
+                        <ul class="nested-list">
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Introduction: Sapta Chatusthaya
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#sapta-chatusthaya">
+                                            Sapta Chatusthaya
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#outline-of-the-seven-chatusthayas-revised-order">
+                                            Outline of the Seven Chatusthayas (Revised Order)
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#incomplete-notes-on-the-first-chatusthaya">
+                                            Incomplete Notes on the First Chatusthaya
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Part One: Diary Entries 1909-1912
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-17-25-june-1909">
+                                            17 - 25 June 1909
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-28-january-17-february-1911">
+                                            28 January - 17 February 1911
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-13-january-8-february-1912">
+                                            13 January - 8 February 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-25-july-1912">
+                                            1 - 25 July 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-12-october-26-november-1912">
+                                            12 October - 26 November 1912
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Part Two: Record of Yoga 1912-1920
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-26-november-31-december-1912">
+                                            26 November - 31 December 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-31-january-1913">
+                                            1 - 31 January 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-14-february-1913">
+                                            1 - 14 February 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-and-12-april-19-and-21-may-1913">
+                                            1 and 12 April, 19 and 21 May 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-4-30-june-1913">
+                                            4 - 30 June 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-11-july-1913">
+                                            1 - 11 July 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-5-21-september-1913">
+                                            5 - 21 September 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-22-30-september-1913">
+                                            22 - 30 September 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-11-23-november-1913">
+                                            11 - 23 November 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-24-november-2-december-1913">
+                                            24 November - 2 December 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-12-december-1913">
+                                            1 - 12 December 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-12-21-december-1913">
+                                            12 - 21 December 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-22-december-1913-15-january-1914">
+                                            22 December 1913 - 15 January 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-12-march-14-april-1914">
+                                            12 March - 14 April 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-15-april-1-june-1914">
+                                            15 April - 1 June 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-10-june-29-september-1914">
+                                            10 June - 29 September 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-29-30-september-31-december-1914">
+                                            29 - 30 September - 31 December 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-january-27-february-1915">
+                                            1 January - 27 February 1915
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-22-april-26-august-1915">
+                                            22 April - 26 August 1915
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-19-february-20-march-1916">
+                                            19 February - 20 March 1916
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-9-january-14-february-1917">
+                                            9 January - 14 February 1917
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-15-february-31-march-1917">
+                                            15 February - 31 March 1917
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-15-august-28-september-1917">
+                                            15 August - 28 September 1917
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-14-28-february-1918">
+                                            14 - 28 February 1918
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-3-27-march-1918">
+                                            3 - 27 March 1918
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-20-april-20-may-1918">
+                                            20 April - 20 May 1918
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-21-may-1-july-1918">
+                                            21 May - 1 July 1918
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-24-june-14-july-1919">
+                                            24 June - 14 July 1919
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-15-26-july-1919">
+                                            15 - 26 July 1919
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-27-july-13-august-1919">
+                                            27 July - 13 August 1919
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-14-august-24-september-1919">
+                                            14 August - 24 September 1919
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-29-february-1920">
+                                            1 - 29 February 1920
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-1-march-10-april-1920">
+                                            1 March - 10 April 1920
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-7-26-june-1920">
+                                            7 - 26 June 1920
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-17-19-october-1920">
+                                            17 - 19 October 1920
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Part Three: Record of Yoga 1926-1927
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#december-1926-6-january-1927-1">
+                                            December 1926 - 6 January 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-7-january-1-february-1927">
+                                            7 January - 1 February 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-7-22-april-1927">
+                                            7 - 22 April 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#c-24-31-october-1927">
+                                            24 - 31 October 1927
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Part Four: Materials Written by Sri Aurobindo Related Directly to Record of Yoga, c.
+                                    1910-1931
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-record-and-record-related-notes">
+                                            Undated Record and Record - Related Notes
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#sortileges-of-may-and-june-1912">
+                                            Sortileges of May and June 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-notes-c-november-1912">
+                                            Undated Notes, c. November 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#draft-programme-of-3-december-1912">
+                                            Draft Programme of 3 December 1912
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-or-partly-dated-script-1912-1913">
+                                            Undated or Partly Dated Script, 1912 - 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#sortilege-of-15-march-1913">
+                                            Sortilege of 15 March [1913]
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#accounts-of-31-may-15-june-1913">
+                                            Accounts of 31 May - 15 June 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#record-notes-13-and-15-september-1913">
+                                            Record Notes, 13 and 15 September 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#vedic-experience-14-and-15-december-1913">
+                                            Vedic Experience, 14 and 15 December 1913
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-notes-c-1914">
+                                            Undated Notes, c. 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#notes-on-images-seen-in-march-1914">
+                                            Notes on Images Seen in March 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-script-c-1920">
+                                            Undated Script, c. 1920
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-notes-c-december-1926">
+                                            Undated Notes, c. December 1926
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-notes-c-january-1927">
+                                            Undated Notes, c. January 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#notes-on-physical-transformation">
+                                            Notes on Physical Transformation
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#diagrams-c-january-1927">
+                                            Diagrams, c. January 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#miscellaneous-notations">
+                                            Miscellaneous Notations
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#record-of-drishti-30-july-1927">
+                                            Record of Drishti, 30 July 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-script-c-1927">
+                                            Undated Script, c. 1927
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-script-c-1927-1928">
+                                            Undated Script, c. 1927 - 1928
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#notes-on-prophetic-vision-1929">
+                                            Notes on Prophetic Vision, 1929
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#diagrams-c-1931">
+                                            Diagrams, c. 1931
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#undated-script-jottings">
+                                            Undated Script Jottings
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Part Five: Automatic Writing
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#the-scribblings-c-1907">
+                                            "The Scribblings", c. 1907
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#yogic-sadhan">
+                                            Yogic Sadhan
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#automatic-writings-c-1914-first-set">
+                                            Automatic Writings, c. 1914 (First Set)
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#automatic-writings-c-1914-second-set">
+                                            Automatic Writings, c. 1914 (Second Set)
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#automatic-writing-c-1920">
+                                            Automatic Writing, c. 1920
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#automatic-writings-c-1920">
+                                            Automatic Writings, c. 1920
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item has-children">
+                                <div class="part-title" tabindex="0">
+                                    <span class="expand-icon">
+                                    </span>
+                                    Appendixes: Material from Disciples' Notebooks
+                                </div>
+                                <ul class="nested-list">
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#miscellaneous-notes-c-1914">
+                                            Miscellaneous Notes, c. 1914
+                                        </a>
+                                    </li>
+                                    <li class="nested-item">
+                                        <a class="chapter-link" href="#sapta-chatusthaya-scribal-version">
+                                            Sapta Chatusthaya - Scribal Version
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nested-item">
+                                <a class="chapter-link" href="#note-on-the-texts">
+                                    Note on the Texts
+                                </a>
+                            </li>
+                        </ul>
+                    </ul>
+                </li>
                 <li class="book-item" data-file-path="static/HTML/Savitri_modified.html" role="menuitem">
                     <div class="book-title" tabindex="0">
                         <span>
@@ -40257,12 +41417,11 @@
                             </a>
                         </li>
 
-                        <li class="nested-item"
-                            data-file-path="/home/olier/textprocess/Original/SA/10-11RecordOfYoga.pdf">
-                            <a class="chapter-link pdf-cover-link" href="#">
-                                Record of Yoga (PDF)
-                            </a>
-                        </li>
+                        <!--<li class="nested-item" data-file-path="/home/olier/textprocess/Original/SA/10-11RecordOfYoga.pdf">
+                        <a class="chapter-link pdf-cover-link" href="#">
+                            Record of Yoga (PDF)
+                        </a>
+                    </li>-->
 
                         <li class="nested-item"
                             data-file-path="/home/olier/textprocess/Original/SA/14VedicAndPhilologicalStudies.pdf">
@@ -40306,42 +41465,88 @@
                 </ul> <!-- Closes the "author-books" if this is the end of the list -->
             </div> <!-- Closes "author-item" -->
         </div> <!-- Closes whatever your wrapper was -->
-    </div>
+        <!-- END of #reading-view-container -->
 
 
 
-    <!-- Include jQuery (if needed) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/juice@8.0.0/dist/juice.min.js">
-    </script>
-    <!-- Include markdown-it library -->
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js">
-    </script>
-    <!-- Include Marked.js -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
-    </script>
-    <!-- Include DOMPurify -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js">
 
-    </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.js">
-    </script>
-    <!-- Include ZingTouch from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/zingtouch@1.0.6/dist/zingtouch.min.js"></script>
-    <script src="
+        <!-- Include jQuery (if needed) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/juice@8.0.0/dist/juice.min.js">
+        </script>
+        <!-- Include markdown-it library -->
+        <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js">
+        </script>
+        <!-- Include Marked.js -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+        </script>
+        <!-- Include DOMPurify -->
+        <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js">
+
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.js">
+        </script>
+        <!-- Include ZingTouch from CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/zingtouch@1.0.6/dist/zingtouch.min.js"></script>
+        <script src="
 https://cdn.jsdelivr.net/npm/bowser@2.11.0/es5.min.js
 "></script>
-    <script src="static/scripts.js"></script>
-    <script>
-        function setDynamicVH() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        window.addEventListener('resize', setDynamicVH);
-        setDynamicVH();
-    </script>
+        <script src="static/scripts.js"></script>
+        <script>
+            $(function () {                     // runs after DOM *and* scripts.js
+                const $q = $('#query').off('focus mouseup');   // strip old ones
+
+                let once = true;
+                $q.on('focus', function () { this.select(); once = true; })
+                    .on('mouseup', function (e) {
+                        if (once) { e.preventDefault(); once = false; }
+                    });
+            });
+        </script>
+        <script>
+            function setDynamicVH() {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            window.addEventListener('resize', setDynamicVH);
+            setDynamicVH();
+        </script>
+
+
+        <script>
+            // References to both style cards & hidden input
+            const plainOlierCard = document.getElementById('plain-olier-card');
+            const poeticOlierCard = document.getElementById('poetic-olier-card');
+            const selectedStyle = document.getElementById('selectedStyle');
+
+            // By default, Poetic Olier is “selected” 
+            // (because we gave it .selected-card in HTML and set value to "poetic")
+
+            // When user clicks Plain Olier card...
+            plainOlierCard.addEventListener('click', function () {
+                // Remove golden highlight from Poetic
+                poeticOlierCard.classList.remove('selected-card');
+                // Add golden highlight to Plain
+                plainOlierCard.classList.add('selected-card');
+                // Update hidden input or state
+                selectedStyle.value = 'plain';
+            });
+
+            // When user clicks Poetic Olier card...
+            poeticOlierCard.addEventListener('click', function () {
+                // Remove golden highlight from Plain
+                plainOlierCard.classList.remove('selected-card');
+                // Add golden highlight to Poetic
+                poeticOlierCard.classList.add('selected-card');
+                // Update hidden input or state
+                selectedStyle.value = 'poetic';
+            });
+        </script>
+
+
 
 </body>
 

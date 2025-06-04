@@ -1,0 +1,4 @@
+# Ignore embedding files in any directory:
+**/merged_auromira_embed.jsonl
+**/merged_sri_aurobindo_embed.jsonl
+**/merged_the_mother_embed.jsonl

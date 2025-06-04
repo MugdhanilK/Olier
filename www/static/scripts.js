@@ -1,6 +1,6 @@
 $(document).ready(function() {
-    const serverUrl = 'https://8c31be54e6fac00f.ngrok.app/';
-
+    const serverUrl = 'https://olierlagrace.ngrok.app/';
+     let hasBeenInReadingModeThisSession = false; // <<< NEW GLOBAL FLAG
 // ===============================================
     // PLATFORM DETECTION
 // ===============================================
@@ -66,13 +66,13 @@ $(document).ready(function() {
       }
 
       // Apply lock scrolling only if Android
-      if (isAndroid) {
+     /* if (isAndroid) {
         document.documentElement.classList.add('mobile-tablet-lock-scroll');
         document.body.classList.add('mobile-tablet-lock-scroll');
       } else {
         document.documentElement.classList.remove('mobile-tablet-lock-scroll');
         document.body.classList.remove('mobile-tablet-lock-scroll');
-      }
+      }*/
 
       // Debugging banner
 
@@ -134,6 +134,7 @@ const chatInput = document.getElementById('chat-input');
 const mainContent = document.querySelector('.container');
 const bottomFlexBox = document.getElementById('bottom-flex-box');
 const $searchToggle = $('#searchToggle');
+const $searchOptionsFrame = $('.search-options-dropdown-frame'); // Cache the new frame
 const $searchBtn = $('#search-btn');
 const $vectorSamples = $('.vector-sample-questions');
 const $keywordSamples = $('.keyword-sample-questions');
@@ -143,6 +144,119 @@ const fullText = document.getElementById('full-text');
 let readingModeActivated = false; // Global flag to track if reading mode is active
 
 
+// From your scripts.js
+const seekOptionsHeader = document.querySelector('.search-options-dropdown-frame .seek-options-header');
+const seekOptionsContent = document.querySelector('.search-options-dropdown-frame .seek-options-content');
+const dropdownFrame = document.querySelector('.search-options-dropdown-frame');
+
+if (seekOptionsHeader && seekOptionsContent && dropdownFrame) {
+
+    function openSeekOptions() {
+        seekOptionsContent.classList.add('open');
+        seekOptionsHeader.classList.remove('collapsed');
+        dropdownFrame.classList.remove('inner-collapsed'); // Correct: removes class on open
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const requiredHeight = seekOptionsContent.scrollHeight + 0;
+                seekOptionsContent.style.maxHeight = requiredHeight + "px";
+            });
+        });
+    }
+
+    function closeSeekOptions() {
+        seekOptionsContent.classList.remove('open');
+        seekOptionsHeader.classList.add('collapsed');
+        dropdownFrame.classList.add('inner-collapsed'); // Correct: adds class on close
+        seekOptionsContent.style.maxHeight = '0';
+    }
+
+    // Initial state:
+    if (seekOptionsHeader.classList.contains('collapsed')) {
+        openSeekOptions();
+    } else {
+        closeSeekOptions(); // Default to open, so inner-collapsed is removed.
+    }
+
+    seekOptionsHeader.addEventListener('click', function() {
+        if (seekOptionsContent.classList.contains('open')) {
+            closeSeekOptions();
+        } else {
+            openSeekOptions();
+        }
+    });
+}
+
+    // Settings Menu Toggle (if you have one, or adapt)
+    const settingsMenuBtn = document.getElementById("settings-menu-btn");
+    const settingsMenuDropdown = document.getElementById("settings-menu-dropdown");
+    const closeSettingsMenuBtn = settingsMenuDropdown ? settingsMenuDropdown.querySelector(".close-menu-btn") : null;
+
+    if (settingsMenuBtn && settingsMenuDropdown) {
+        settingsMenuBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            settingsMenuDropdown.classList.toggle("active");
+            settingsMenuBtn.setAttribute('aria-expanded', settingsMenuDropdown.classList.contains('active'));
+        });
+    }
+
+    if (closeSettingsMenuBtn) {
+        closeSettingsMenuBtn.addEventListener("click", function () {
+            settingsMenuDropdown.classList.remove("active");
+            if (settingsMenuBtn) {
+                settingsMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    // Main Menu Toggle (from your existing scripts.js)
+    const mainMenuBtn = document.getElementById("main-menu-btn"); // Assuming this is for the book list
+    const mainMenuDropdown = document.getElementById("main-menu-dropdown");
+    const closeMainMenuBtn = mainMenuDropdown ? mainMenuDropdown.querySelector(".close-menu-btn") : null;
+
+    // Existing main menu button (logo button) functionality - adapted
+    // Ensure the main-menu-btn is the correct one (your logo button)
+    const mainMenuLogoBtn = document.querySelector(".search-image #main-menu-btn"); // More specific selector for the logo button
+    if (mainMenuLogoBtn && mainMenuDropdown) { // Ensure mainMenuDropdown is not null
+        mainMenuLogoBtn.addEventListener("click", function (event) {
+            // This button's primary role seems to be opening a new window.
+            // If it's ALSO supposed to toggle the main menu, that logic needs to be here.
+            // For now, keeping its original JS functionality of opening a link.
+            // window.open("https://youtu.be/otECbl2kOuc&autoplay=1", "_blank");
+            // console.log("Main menu (logo) button clicked - opening video link");
+
+            // If you want it to ALSO toggle the book menu, uncomment and adapt:
+            /*
+            event.stopPropagation();
+            mainMenuDropdown.classList.toggle("active");
+            mainMenuLogoBtn.setAttribute('aria-expanded', mainMenuDropdown.classList.contains('active'));
+            */
+        });
+    }
+
+
+    if (closeMainMenuBtn) {
+        closeMainMenuBtn.addEventListener("click", function () {
+            if (mainMenuDropdown) { // Check if mainMenuDropdown exists
+                mainMenuDropdown.classList.remove("active");
+            }
+            if (mainMenuLogoBtn) { // Check if mainMenuLogoBtn exists
+                 mainMenuLogoBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    // Close dropdowns if clicked outside
+    document.addEventListener("click", function (event) {
+        if (mainMenuDropdown && !mainMenuDropdown.contains(event.target) && mainMenuLogoBtn && !mainMenuLogoBtn.contains(event.target)) {
+            mainMenuDropdown.classList.remove("active");
+            if (mainMenuLogoBtn) mainMenuLogoBtn.setAttribute('aria-expanded', 'false');
+        }
+        if (settingsMenuDropdown && !settingsMenuDropdown.contains(event.target) && settingsMenuBtn && !settingsMenuBtn.contains(event.target)) {
+            settingsMenuDropdown.classList.remove("active");
+            if (settingsMenuBtn) settingsMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+    });
 
 
 
@@ -150,7 +264,33 @@ let readingModeActivated = false; // Global flag to track if reading mode is act
 // ===============================================
 // SEARCH FUNCTIONS AND UI
 // ===============================================
+    // --- Load and Apply Saved Preferences ---
+    try {
+        const savedScope = localStorage.getItem('searchScopePreference');
+        if (savedScope && ['all', 'aurobindo', 'mother'].includes(savedScope)) {
+            $('input[name="searchScope"][value="' + savedScope + '"]').prop('checked', true);
+            console.log("Applied saved search scope:", savedScope);
+        } else {
+            $('input[name="searchScope"][value="all"]').prop('checked', true);
+            if (savedScope) console.warn("Invalid saved scope found ('"+ savedScope +"'), defaulting to 'all'.");
+            else console.log("No saved scope found, defaulting to 'all'.");
+        }
+    } catch (e) {
+        console.error("Error retrieving or applying saved scope preference:", e);
+        $('input[name="searchScope"][value="all"]').prop('checked', true);
+    }
+    // *** End Load Scope ***
 
+       // *** Save Scope Preference on Change (Reverted to this method) ***
+       $('input[name="searchScope"]').on('change', function() {
+        const selectedValue = $(this).val();
+        try {
+            localStorage.setItem('searchScopePreference', selectedValue);
+            console.log("Saved search scope preference:", selectedValue);
+        } catch (e) {
+            console.error("Error saving scope preference to localStorage:", e);
+        }
+    });
 // Initially hide the loader and the full-text section
 $("#loader-container").hide();
 $('#full-text').hide();
@@ -210,11 +350,14 @@ function startLoaderAnimation() {
 
   // Start a fade animation: toggles between 1 and 0.6 opacity
   let opacity = 1;
-  fadeInterval = setInterval(function() {
-    // Toggle opacity between 1 and 0.6
-    opacity = opacity > 0.6 ? 0.6 : 1;
-    $(".book-loader").animate({ 'opacity': opacity }, 600, 'linear'); // Faster transition
-  }, 700); // Shorter interval for faster fade timing
+    // Clear any existing interval to prevent multiple animations
+    clearInterval(fadeInterval);
+    fadeInterval = setInterval(function() {
+        // Toggle opacity between 1 and 0.6
+        opacity = opacity > 0.6 ? 0.6 : 1;
+        // Animate the opacity change smoothly
+        $(".book-loader").animate({ 'opacity': opacity }, 600, 'linear'); // Faster transition
+    }, 700); // Shorter interval for faster fade timing
 }
 
 /**
@@ -249,6 +392,10 @@ startLoaderAnimation();
 $('#results').empty(); // Clear previous results
 $('.sample-questions').hide(); // Hide sample questions when search is initiated
 
+ // ***** Hide summary button and container initially on new search *****
+ $('#summarize-results-btn').hide();
+ $('#ai-summary-container').hide().find('#ai-summary-content').empty(); // Hide and clear previous summary
+
 // Add hidden class to open_chatbot button when not in flex-box and zoom_to_top button
 $('.open_chatbot:not(.in-flex-box), .zoom_to_top').addClass('hidden');
 
@@ -259,40 +406,50 @@ var isVectorSearch = !$searchToggle.is(':checked');
 var searchUrl = isVectorSearch ? serverUrl + '/api/search' : serverUrl + '/api/keyword-search';
 console.log("Search URL:", searchUrl);
 
-$.post(searchUrl, { query: query }, function(data) {
+$.post(searchUrl, {
+    query: query,
+    scope: $('#selectedScope').val() || 'all'
+}, function (data) {
     console.log("Search results received", data);
     stopLoaderAnimation();
 
+    // Ensure we're not in reading mode when search results are displayed
+    readingModeActivated = false;
+    
     // If no results are found, show a message and re-display sample questions
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         $('#results').html('<p>No results found. Please try a different query.</p>');
         $('.sample-questions').show();
+        $('#summarize-results-btn').hide();
+        $('#results').removeData('fullResultsData');
+        $('#info-message').removeClass('hidden');
+
+        // --- ADD THIS BLOCK for "NO RESULTS" ---
+        window.scrollTo(0, 0); // Scroll to the top of the page
+        lastScrollTop = 0;     // Reset scroll state for toggleOlierButton
+        toggleOlierButton();   // Update button visibility
+        // --- END ADDED BLOCK ---
         return;
     }
+
+    // Store the full results data
+    $('#results').data('fullResultsData', data);
+    console.log("Stored full results data.");
 
     var $resultsContainer = $('<div id="top-results"></div>');
 
     data.forEach(function(result, index) {
-        // Use highlighted_text for preview, fallback to text if not available
+        // ... (your existing code for creating and appending resultItem) ...
         var preview = result.highlighted_text || result.text;
+        if (preview) {
+            preview = preview.replace(/\s*\[(CWSA|CWM|Mother['’]s Agenda)\s*[-–]\s*'([^']+)'\s*,\s*'([^']+)'\]\s*/g, '');
+        }
         preview = preview.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-
-        // Truncate the preview to approximately 100 words, preserving HTML tags
         var previewWords = preview.split(" ");
         if (previewWords.length > 100) {
             preview = previewWords.slice(0, 100).join(" ") + "...";
         }
-
-        // Conditionally display the relevance score only for vector search
         var relevanceScoreHtml = '';
-        if (isVectorSearch && result.relevance_score !== undefined) {
-            relevanceScoreHtml = `
-                <div class="result-score">
-                    Relevance Score: ${result.relevance_score.toFixed(2)}
-                </div>
-            `;
-        }
-
         var resultItem = `
             <div class="result-item">
                 <div class="result-preview">${preview}</div>
@@ -321,20 +478,37 @@ $.post(searchUrl, { query: query }, function(data) {
                 </div>
             </div>
         `;
-
-        // Append the resultItem to the results container
         $resultsContainer.append(resultItem);
     });
 
-    // Append the results container to the results section
     $('#results').append($resultsContainer);
+
+    if (data.length > 0) {
+        $('#summarize-results-btn').show();
+        console.log("Summarize button shown.");
+    }
+
+    // --- ADD THIS BLOCK for SUCCESSFUL RESULTS ---
+    window.scrollTo(0, 0); // Scroll to the top to show results from the start
+    lastScrollTop = 0;     // Reset scroll state for toggleOlierButton
+    toggleOlierButton();   // Call to update button visibility based on current state
+    // --- END ADDED BLOCK ---
 
 }).fail(function(jqXHR, textStatus, errorThrown) {
     console.log("Search request failed", textStatus, errorThrown);
     stopLoaderAnimation();
     $('#results').prepend('<p>An error occurred while searching. Please try again.</p>');
-    // Show sample questions again if there was an error
     $('.sample-questions').show();
+    $('#summarize-results-btn').hide();
+    $('#results').removeData('fullResultsData');
+    $('#info-message').removeClass('hidden');
+
+    // --- ADD THIS BLOCK for FAILURE CASE ---
+    readingModeActivated = false; // Ensure not in reading mode
+    window.scrollTo(0, 0);    // Scroll to top
+    lastScrollTop = 0;        // Reset scroll state
+    toggleOlierButton();      // Update button visibility
+    // --- END ADDED BLOCK ---
 });
 });
 
@@ -343,10 +517,345 @@ $.post(searchUrl, { query: query }, function(data) {
 $('#query').on('input', function() {
     if ($(this).val().trim() === '') {
         $('#results').empty();
-        $('.sample-questions').show();
+        $('.sample-questions').show(); // Show sample questions when input is empty
+        $('#summarize-results-btn').hide(); // Hide button
+        $('#ai-summary-container').hide().find('#ai-summary-content').empty(); // Hide and clear summary
+        // Clear any previously stored results data
+        $('#results').removeData('fullResultsData');
+         // **** ADD THIS LINE ****
+         $('#info-message').removeClass('hidden');
+         // **********************
     }
 });
 
+
+//==========================================
+//SUMMARIZE BUTTON FUNCTIONALITY
+//==========================================
+
+// (Make sure markdownit and DOMPurify are loaded/initialized)
+const md = window.markdownit(); // Initialize markdown-it
+
+// --- Summarize Button Click Handler (Modified for Streaming) ---
+$(document).on('click', '#summarize-results-btn', async function() { // Add async here
+    // 0. Ensure chatbox is open
+    $('#info-message').addClass('hidden'); // <-- ADD THIS LINE
+
+    // 0. Ensure chatbox is open
+    if (!$("#chatbox").hasClass("open")) {
+        $(".open_chatbot").first().trigger("click");
+    }
+    $("#messages .empty-div").hide();
+
+    // 1. Get messages area
+    const messagesBox = document.querySelector("#messages .messages-box");
+    if (!messagesBox) {
+        console.error("Messages area not found.");
+        return;
+    }
+
+    // 2. Create placeholder bubble
+    let placeholderBubble = document.createElement("div");
+    placeholderBubble.classList.add("box", "ai-message");
+    let messageWrapper = document.createElement("div");
+    messageWrapper.style.position = "relative";
+    let placeholderMessage = document.createElement("div");
+    placeholderMessage.classList.add("messages");
+    placeholderMessage.style.whiteSpace = "pre-wrap";
+    let meditatingElement = document.createElement("div"); // Separate element for "Meditating..."
+    meditatingElement.classList.add("meditating-message"); // Use existing class
+    meditatingElement.textContent = 'Creating the Olier Overview...';
+    placeholderMessage.classList.add('is-loading'); // <-- ADD
+
+    placeholderMessage.appendChild(meditatingElement); // Add meditating text initially
+    messageWrapper.appendChild(placeholderMessage);
+    placeholderBubble.appendChild(messageWrapper);
+    messagesBox.appendChild(placeholderBubble);
+    // --- UI Adjustments & Scroll (AI Placeholder) ---
+    autoScrollEnabled = true; // Ensure scroll enabled for placeholder
+    requestAnimationFrame(() => { // Ensure DOM update before scrolling
+        scrollToBottom();
+        if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+        if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+    });
+   // --- END UI Adjustments (AI Placeholder) ---
+
+    //scrollToBottom(); // Scroll initially
+
+    // 2a. Animate dots (Keep this part)
+    let dotCount = 0;
+    const meditatingInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        if (meditatingElement && meditatingElement.parentNode) { // Check if element still exists
+             meditatingElement.textContent = 'Creating the Olier Overview' + '.'.repeat(dotCount);
+        } else {
+             clearInterval(meditatingInterval); // Stop if element is removed
+        }
+    }, 500);
+
+    // 3. Prepare payload (same as before)
+    const fullResultsData = $('#results').data('fullResultsData') || [];
+    if (fullResultsData.length === 0) {
+        if (meditatingElement && meditatingElement.parentNode) meditatingElement.textContent = "No results available for summarization.";
+        clearInterval(meditatingInterval);
+        return;
+    }
+    const topResults = fullResultsData.slice(0, 10);
+    const userQuery = $('#query').val().trim();
+    const payload = {
+        results: topResults,
+        query: userQuery
+    };
+
+    // 4. Fetch request for streaming summarization
+    try {
+        const response = await fetch(serverUrl + 'api/summarize-results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(payload) // Use body for fetch
+        });
+
+        if (!response.ok) {
+            // Handle HTTP errors before trying to read stream
+            clearInterval(meditatingInterval);
+            if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove(); // Remove meditating text
+            placeholderMessage.textContent = `Error: ${response.status} ${response.statusText}`;
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedText = '';
+        let firstChunkReceived = false;
+
+        // Inside the 'while (true)' loop for summary streaming
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (value) {
+                // --- First chunk logic (keep as is) ---
+                if (!firstChunkReceived) {
+                    clearInterval(meditatingInterval);
+                    if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+                    placeholderMessage.classList.remove('is-loading'); // <-- ADD
+                    placeholderMessage.innerHTML = ''; // Clear "Meditating..."
+                    firstChunkReceived = true;
+                }
+                // ---
+
+                let chunk = decoder.decode(value);
+
+                // Check for backend error signal (keep as is)
+                if (chunk.startsWith("STREAM_ERROR:")) {
+                     placeholderMessage.innerHTML = `<span style="color: red;">${chunk.substring("STREAM_ERROR:".length).trim()}</span>`;
+                     console.error("Summarization stream error:", chunk);
+                     break; // Stop processing stream on error
+                }
+
+
+                accumulatedText += chunk;
+
+                // ***** CORRECTED RENDERING ORDER *****
+                // 1. Render Markdown from the accumulated text FIRST.
+                //    This will process any markdown syntax but leave the [Marker] tags untouched.
+                let renderedMarkdown = md.render(accumulatedText);
+
+                // 2. Now, replace the [Marker] tags within the RENDERED HTML string.
+                let htmlWithLinks = replaceReferenceMarkers(renderedMarkdown);
+
+                // 3. Sanitize the final HTML which now contains rendered markdown AND the links.
+                let cleanHtml = DOMPurify.sanitize(htmlWithLinks);
+
+                // 4. Update the DOM.
+                placeholderMessage.innerHTML = cleanHtml;
+                //messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // ***** END OF CORRECTED RENDERING ORDER *****
+
+
+                // --- UI Adjustments (keep as is) ---
+                 if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                 if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                 
+                 
+                 //scrollToBottom(); // Keep scrolling as content arrives
+                 // ---
+            }
+
+            if (done) {
+                // --- Final UI Adjustments and Button Addition (keep as is) ---
+                clearInterval(meditatingInterval);
+                if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+
+                // Add copy button AFTER streaming is complete
+                addCopyButton(messageWrapper);
+
+                // Final layout adjustment after all content is rendered
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                scrollToBottom(); // Final scroll
+
+                break; // Exit the loop
+            }
+        }
+        
+/*
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (value) {
+                // --- First chunk logic ---
+                if (!firstChunkReceived) {
+                    clearInterval(meditatingInterval);
+                    if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+                    placeholderMessage.innerHTML = ''; // Clear "Meditating..."
+                    firstChunkReceived = true;
+                }
+                // ---
+
+                let chunk = decoder.decode(value);
+
+                // Check for backend error signal
+                if (chunk.startsWith("STREAM_ERROR:")) {
+                     placeholderMessage.innerHTML = `<span style="color: red;">${chunk.substring("STREAM_ERROR:".length).trim()}</span>`;
+                     console.error("Summarization stream error:", chunk);
+                     break; // Stop processing stream on error
+                }
+
+
+                accumulatedText += chunk;
+
+                // Render progressively with reference links
+                let textWithLinks = replaceReferenceMarkers(accumulatedText);
+                let dirtyHtml = md.render(textWithLinks); // Use markdown-it
+                let cleanHtml = DOMPurify.sanitize(dirtyHtml); // Sanitize
+                placeholderMessage.innerHTML = cleanHtml; // Update content
+
+
+                // --- Optional: Adjust height during streaming (can be intensive) ---
+                // You might throttle this if needed
+                 if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                 if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                 scrollToBottom(); // Keep scrolling as content arrives
+                 // ---
+            }
+
+            if (done) {
+                clearInterval(meditatingInterval); // Ensure cleared if loop finishes quickly
+                if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove(); // Ensure removed
+
+                // Add copy button AFTER streaming is complete
+                addCopyButton(messageWrapper);
+
+                // Final layout adjustment after all content is rendered
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                scrollToBottom(); // Final scroll
+
+                break; // Exit the loop
+            }
+        }
+*/
+
+
+    } catch (error) {
+        clearInterval(meditatingInterval); // Clear interval on fetch error
+        if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+        placeholderMessage.classList.remove('is-loading'); // <-- ADD
+        placeholderMessage.textContent = "Sorry, an error occurred while creating the Olier Overview. Please try again later.";
+        console.error("Summarization request failed:", error);
+    }
+}); // End of summarize button click handler
+//Changes finished
+
+
+// --- Helper function to replace new-style reference markers with clickable links ---
+function replaceReferenceMarkers(text) {
+    let refCounter = 0;           // ← add this
+    // Matches:
+    //  [CWSA – 'Book Title', 'Chapter Title']
+    //  [CWM - 'Book Title', 'Chapter Title']
+    //  [Mother’s Agenda - 'Book Title', 'Chapter Title']
+    return text.replace(
+        /\s*\[(CWSA|CWM|Mother['’]s Agenda)\s*[-–]\s*'(.+?)'\s*,\s*'(.+?)'\]\s*/g, 
+        (match, series, book, chapter) => {
+            refCounter++;  // 1, 2, 3, ...
+       // *** CRITICAL FIX: Return string on ONE LINE, prefixed with &nbsp; ***
+            return `&nbsp;<a href="#" class="reference-link" data-book-title="${book}" data-chapter-title="${chapter}"><span class="badge badge-secondary">R${refCounter}</span></a>`; 
+
+        }
+    );
+    
+}
+  
+
+
+// Helper function to set chat input value and trigger the send button
+// (Keep this if your overall code uses it; otherwise, you may remove or adjust it as needed.)
+function setInputValueAndSend(prompt) {
+    const $chatInput = $('#chat-input');
+    $chatInput.val(prompt);
+    $chatInput.trigger('input'); // Trigger input event for auto-resize if needed
+    console.log("Setting chat input and triggering send.");
+    $('#send-btn').click();
+}
+
+// --- Event Listener for Reference Links ---
+$(document).on('click', '.reference-link', function(e) {
+    e.preventDefault();
+    
+    // ① Read the link’s data attributes up front
+    const bookTitle   = $(this).data('book-title');
+    const chapterTitle= $(this).data('chapter-title');
+  
+    // ② On mobile, first close the chat pane (reusing your existing toggle)
+    if ($('body').hasClass('is-mobile') || $('body').hasClass('is-tablet')) {
+      $('.close-icon').trigger('click');
+  
+      // ③ Wait for your 0.3s slide‑out animation to finish, then scroll the page
+      setTimeout(() => {
+        const $result = $(".result-item").filter(function(){
+          const md = $(this).find(".result-metadata").text().toLowerCase();
+          return md.includes(bookTitle.toLowerCase()) &&
+                 md.includes(chapterTitle.toLowerCase());
+        }).first();
+        if (!$result.length) return;
+  
+        // ④ Scroll the window exactly as on desktop
+        $('html, body').animate({
+          scrollTop: $result.offset().top - 20
+        }, 500);
+  
+        // ⑤ Highlight it
+        $result.addClass('highlight-golden');
+        setTimeout(() => $result.removeClass('highlight-golden'), 5000);
+      }, 300);
+  
+      return;
+    } 
+
+  // 2️⃣ If on desktop, perform the normal scroll + highlight logic:
+  
+    //const bookTitle = $(this).data('book-title');
+   // const chapterTitle = $(this).data('chapter-title');
+   
+   // Find the first result-item whose metadata includes both the book title and chapter title (ignoring case)
+    const $result = $(".result-item").filter(function(){
+        const metadata = $(this).find(".result-metadata").text();
+        return metadata.toLowerCase().includes(bookTitle.toLowerCase()) &&
+               metadata.toLowerCase().includes(chapterTitle.toLowerCase());
+    }).first();
+
+    if ($result.length) {
+        $('html, body').animate({ scrollTop: $result.offset().top - 20 }, 500);
+        $result.addClass('highlight-golden');
+        setTimeout(() => {
+            $result.removeClass('highlight-golden');
+        }, 5000);
+    }
+});
+// --- END OF SUMMARIZE BUTTON CLICK HANDLER ---
 
 
 // Hide the View Detail loader and overlay initially
@@ -597,6 +1106,27 @@ if (isAndroid || isTablet) {
   setupViewportResizeListener();
 }
 
+// **** INSERT THE NEW ANDROID FOCUS LISTENER BLOCK HERE ****
+// Add this block for Android focus handling
+if (isAndroid) {
+    const chatInput = document.getElementById('chat-input'); // Make sure chatInput is accessible here
+    if (chatInput) {
+        chatInput.addEventListener('focus', () => {
+            // Delay slightly to allow keyboard animation and resize event to settle
+            setTimeout(() => {
+                console.log("Re-adjusting height on Android focus after delay");
+                adjustChatboxHeight(); 
+                // Optionally, ensure the input is scrolled into view if needed,
+                // though adjustChatboxHeight should handle the container positioning.
+                // chatInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
+            }, 250); // Adjust delay (e.g., 200-300ms) if needed
+        });
+    }
+}
+// End of new block
+// ***************
+
+/*
 if (isIOS) {
     // On focus: change CSS directly
     chatInput.addEventListener('focus', () => {
@@ -615,8 +1145,34 @@ if (isIOS) {
       
     });
   }
-  
+  */
+/*
+  if (isIOS) {
+    const chatInput = document.getElementById('chat-input'); // Ensure chatInput is defined
 
+    chatInput.addEventListener('focus', () => {
+        document.body.classList.add('keyboard-open');
+        // Use setTimeout to ensure layout adjustments have likely occurred
+        setTimeout(() => {
+           chatInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
+    });
+
+    chatInput.addEventListener('blur', () => {
+        document.body.classList.remove('keyboard-open');
+        // Optionally, trigger adjustChatboxHeight again if needed when keyboard hides
+        // setTimeout(adjustChatboxHeight, 0);
+    });
+}
+*/
+// 2) iOS: Use visualViewport resize directly
+if (isIOS && window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustChatboxHeight);
+}
+// Note: You might add a fallback 'resize' listener for older iOS versions
+// else if (isIOS) {
+//    window.addEventListener('resize', adjustChatboxHeight);
+// }
     function adjustChatboxHeight() {
   
         // This function adjusts the chatbox height dynamically based on the viewport
@@ -653,8 +1209,10 @@ if (isIOS) {
         // Adjust the messages container height
         messages.style.height = `${messagesHeight}px`;
       
-        // Scroll to the bottom of the messages container to show the latest messages
-        messages.scrollTop = messages.scrollHeight;
+        if (autoScrollEnabled && messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+       }
+   
       
       }
       
@@ -748,10 +1306,10 @@ function resizerDown(e) {
       // Add a visual indicator (active state) to the resizer
       resizer.classList.add('resizer-active');
   
-      // Disconnect the ResizeObserver (if present) to avoid conflicting size adjustments
+      /* Disconnect the ResizeObserver (if present) to avoid conflicting size adjustments
       if (chatboxResizeObserver) {
         chatboxResizeObserver.disconnect();
-      }
+      }*/
   
       // Capture the initial horizontal coordinate, based on whether it's a mouse or touch event
       if (e.type === 'mousedown') {
@@ -818,13 +1376,13 @@ function resizerDown(e) {
       // Save this width to localStorage so it can be applied in future sessions
       localStorage.setItem('chatboxWidth', chatboxWidth);
   
-      // Reconnect the ResizeObserver so it continues to observe changes automatically
+      /* Reconnect the ResizeObserver so it continues to observe changes automatically
       if (chatboxResizeObserver) {
         const chatboxElement = document.getElementById('chatbox');
         if (chatboxElement) {
           chatboxResizeObserver.observe(chatboxElement);
         }
-      }
+      }*/
     }
   }
   
@@ -889,6 +1447,12 @@ $(".close-icon").on("click", function(event) {
     closeChatbox();
 });
 function closeChatbox() {
+
+     /* --- NEW: be sure the page can scroll again --- */
+  document.documentElement.classList.remove('mobile-tablet-lock-scroll');
+  document.body.classList.remove('mobile-tablet-lock-scroll');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow  = '';
     let pageNumElement = null;
     
     // --------------------
@@ -1053,26 +1617,38 @@ const messagesContainer = document.getElementById('messages');
 
 // Helper function to check if user is at the bottom
 function checkIfAtBottom() {
-    const threshold = 10; // Adjust as needed
+    const threshold = 100; // Adjust as needed
     return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight <= threshold;
 }
 
-// Scroll event listener to update auto-scroll flag
+// Scroll event listener to update auto-scroll flag and button visibility
 messagesContainer.addEventListener('scroll', function() {
-    if (checkIfAtBottom()) {
+    const isCurrentlyAtBottom = checkIfAtBottom();
+
+    if (isCurrentlyAtBottom) {
         autoScrollEnabled = true;
+         // Hide scroll-to-bottom button when at bottom
+        if (scrollButton) scrollButton.style.display = 'none';
     } else {
+        // User has scrolled up, disable auto-scroll
         autoScrollEnabled = false;
+         // Show scroll-to-bottom button if overflowing and not at bottom
+         if (isOverflowing() && scrollButton) {
+            // Use flex if that's how you center the icon, otherwise 'block'
+            scrollButton.style.display = 'flex'; // Or 'block'
+         }
     }
 });
 
 // Immediate interaction handlers to disable auto-scroll
 ['mousedown', 'touchstart', 'wheel'].forEach(eventType => {
     messagesContainer.addEventListener(eventType, function() {
+        // Directly disable auto-scroll on any interaction start
         autoScrollEnabled = false;
+        // Update button visibility *immediately* based on new state
+        updateScrollButtonVisibility();
     });
 });
-
 // Modify scrollToBottom function
 function scrollToBottom() {
     if (autoScrollEnabled) {
@@ -1081,8 +1657,21 @@ function scrollToBottom() {
 }
 
 // Automatically scroll to the bottom as new messages are added
-const observer = new MutationObserver(scrollToBottom);
-observer.observe(messagesContainer, { childList: true, subtree: true });
+const observer = new MutationObserver((mutationsList) => {
+    // Only auto‑scroll if an AI message (.box.ai-message) was just added and never on a reference‑link click
+    const addedAiMessage = mutationsList.some(mutation =>
+      Array.from(mutation.addedNodes).some(node =>
+        node.nodeType === Node.ELEMENT_NODE &&
+        node.classList.contains('box') &&
+        node.classList.contains('ai-message')
+      )
+    );
+    if (addedAiMessage) {
+      scrollToBottom();
+    }
+  });
+  observer.observe(messagesContainer, { childList: true, subtree: true, characterData: true,  });
+
 
 
 // Define the autoResize function
@@ -1419,6 +2008,9 @@ function loadChatHistory(index) {
     if (selectedChat) {
         const messagesBox = document.querySelector("#messages .messages-box");
         messagesBox.innerHTML = ''; // Clear existing messages
+// **** ADD THIS LINE ****
+$('#info-message').addClass('hidden');
+// **********************
 
         selectedChat.messages.forEach(msg => {
             const messageBox = document.createElement("div");
@@ -1507,10 +2099,16 @@ function saveCurrentChat(showAlert = true) {
             // **Clear the chat messages from the DOM**
             const messagesBox = document.querySelector("#messages .messages-box");
             messagesBox.innerHTML = ''; // Clear existing messages
+// **** ADD THIS LINE ****
+$('#info-message').removeClass('hidden');
+// **********************
 
             // **Show the empty chat indicator**
             const emptyDiv = document.querySelector("#messages .empty-div");
             emptyDiv.style.display = "flex";
+ // **** ADD THIS LINE AGAIN (for certainty) ****
+ $('#info-message').removeClass('hidden');
+ // *********************************************
 
             // **Optionally, clear the chat input field**
             document.getElementById('chat-input').value = '';
@@ -1535,6 +2133,34 @@ function saveCurrentChat(showAlert = true) {
     }
 }
 
+/* ===============================================
+   AI-STYLE  (Plain | Poetic)  – No Radiobuttons
+==================================================*/
+
+const plainCard  = document.getElementById('plain-olier-card');
+const poeticCard = document.getElementById('poetic-olier-card');
+const hiddenStyleInput = document.getElementById('selectedStyle');
+
+// ① Restore the saved style or default to ‘poetic’
+let savedStyle = localStorage.getItem('olierStyle') || 'poetic';
+hiddenStyleInput.value = savedStyle;
+updateCardHighlight(savedStyle);
+
+// ② Click handlers – toggle highlight + save to localStorage
+plainCard .addEventListener('click', () => setStyle('plain'));
+poeticCard.addEventListener('click', () => setStyle('poetic'));
+
+function setStyle(style) {
+    hiddenStyleInput.value = style;
+    localStorage.setItem('olierStyle', style);
+    updateCardHighlight(style);
+}
+
+function updateCardHighlight(style) {
+    plainCard .classList.toggle('selected-card', style === 'plain');
+    poeticCard.classList.toggle('selected-card', style === 'poetic');
+}
+
 // Attach event listener to the "Save" button
 document.getElementById('save-chat-btn').addEventListener('click', function(event) {
     event.stopPropagation();
@@ -1550,13 +2176,53 @@ document.addEventListener('click', function(event) {
     }
 });
 
+/* ─────────────────────────────────────────────
+   SEEK-SCOPE selector  (All | Aurobindo | Mother)
+   Mirrors the Plain/Poetic pattern 1-for-1
+───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   SEEK-SCOPE selector  (All | Aurobindo | Mother)
+   Mirrors the Plain/Poetic pattern 1-for-1
+───────────────────────────────────────────── */
+
+const scopeAllCard       = document.getElementById('scope-all-card');
+const scopeAurobindoCard = document.getElementById('scope-aurobindo-card');
+const scopeMotherCard    = document.getElementById('scope-mother-card');
+const hiddenScopeInput   = document.getElementById('selectedScope');   // same as Style
+
+// ❶  Helper → update UI, hidden input, localStorage
+function setScope(scope, card) {
+    [scopeAllCard, scopeAurobindoCard, scopeMotherCard]
+        .forEach(c => c.classList.remove('selected-card'));
+
+    card.classList.add('selected-card');          // gold outline
+    hiddenScopeInput.value = scope;               // keep form state
+    localStorage.setItem('seekScope', scope);     // persist
+}
+
+// ❷  Restore last choice (or default to all)
+const savedScope = localStorage.getItem('seekScope') || 'all';
+switch (savedScope) {
+    case 'aurobindo': setScope('aurobindo', scopeAurobindoCard); break;
+    case 'mother':    setScope('mother',    scopeMotherCard   ); break;
+    default:          setScope('all',       scopeAllCard      );
+}
+
+// ❸  Wire clicks
+scopeAllCard      .addEventListener('click', () => setScope('all',       scopeAllCard      ));
+scopeAurobindoCard.addEventListener('click', () => setScope('aurobindo', scopeAurobindoCard));
+scopeMotherCard   .addEventListener('click', () => setScope('mother',    scopeMotherCard   ));
+
+
+
+
 
 // Prevent clicks inside the dropdown from closing it
 document.getElementById('chat-history-dropdown').addEventListener('click', function(event) {
     event.stopPropagation();
 });
 /* Retrieve saved style from localStorage */
-let savedStyle = localStorage.getItem('olierStyle');
+/*let savedStyle = localStorage.getItem('olierStyle');
 console.log("Retrieved savedStyle:", savedStyle);
 
 if (savedStyle && savedStyle !== 'poetic') {
@@ -1595,28 +2261,30 @@ if (savedStyle && savedStyle !== 'poetic') {
     } else {
         console.error("No poetic radio found, check HTML.");
     }
-}
+}*/
 
 /* Retrieve saved reflectiveMode from localStorage */
-let savedReflectiveMode = localStorage.getItem('reflectiveMode');
-console.log("Retrieved savedReflectiveMode:", savedReflectiveMode);
+/* Retrieve saved speedyMode from localStorage */
+let savedSpeedyMode = localStorage.getItem('speedyMode'); // <-- Changed key
+console.log("Retrieved savedSpeedyMode:", savedSpeedyMode);
 
-const reflectiveCheckbox = document.querySelector("input[name='reflective-mode']");
-if (reflectiveCheckbox) {
-    // If savedReflectiveMode === 'true', check the box
-    reflectiveCheckbox.checked = (savedReflectiveMode === 'true');
+const speedyCheckbox = document.querySelector("input[name='speedy-mode']"); // <-- Changed selector
+if (speedyCheckbox) { // <-- Changed variable name
+    // If savedSpeedyMode === 'true', check the box
+    speedyCheckbox.checked = (savedSpeedyMode === 'true'); // <-- Changed variables
 
-    // Set up event listener to update localStorage when Reflective Mode is changed
-    reflectiveCheckbox.addEventListener('change', (e) => {
-        localStorage.setItem('reflectiveMode', e.target.checked);
-        console.log("Reflective Mode changed to:", e.target.checked);
+    // Set up event listener to update localStorage when Speedy Mode is changed
+    speedyCheckbox.addEventListener('change', (e) => { // <-- Changed variable name
+        localStorage.setItem('speedyMode', e.target.checked); // <-- Changed key
+        console.log("Speedy Mode changed to:", e.target.checked); // <-- Changed log message
     });
 } else {
-    console.warn("No 'reflective-mode' checkbox found in the HTML. Check the markup.");
+    // Updated warning message for clarity
+    console.warn("No 'speedy-mode' checkbox found in the HTML. Check the markup.");
 }
 
 /* Set up event listeners to update localStorage on style change */
-const styleRadios = document.querySelectorAll("input[name='style']");
+/*const styleRadios = document.querySelectorAll("input[name='style']");
 console.log("Found style radios:", styleRadios);
 styleRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -1624,13 +2292,20 @@ styleRadios.forEach(radio => {
         localStorage.setItem('olierStyle', e.target.value);
         console.log("LocalStorage now (olierStyle):", localStorage.getItem('olierStyle'));
     });
-});
+});*/
+
 
 
 
 // ===============================================
 // DYNAMIC CHATBOT FUNCTIONS - SEND MESSAGE AND IMAGE GEN
 // ===============================================
+
+// Assume these functions/variables are defined elsewhere:
+// $, adjustChatboxHeight, updateScrollButtonVisibility, chatInput,
+// isFirstMessageAfterOliClick, serverUrl, markdownit, DOMPurify,
+// removeAllCopyButtons, isIOS, autoResize, scrollToBottom,
+// addCopyButton, displayDomainOnlyCardLinks
 
 $('#send-btn').on('click', sendMessage);
 
@@ -1642,170 +2317,341 @@ $('#chat-input').on('keypress', function(e) {
 });
 
 async function sendMessage() {
-  let input_message = $('#chat-input').val();
-  if (input_message.trim() === '') {
-    alert('Please enter a message');
-    return;
-  }
-
-  document.querySelector("#messages .empty-div").style.display = "none";
-
-  const messageBox = document.createElement("div");
-  messageBox.classList.add("box", "right");
-
-  const message = document.createElement("div");
-  message.classList.add("messages");
-  message.textContent = input_message;
-  messageBox.appendChild(message);
-
-  document.querySelector("#messages .messages-box").appendChild(messageBox);
-
-  // Initial adjustment
-  adjustChatboxHeight(); 
-  updateScrollButtonVisibility();
-
-  $('#chat-input').val('');
-  chatInput.dispatchEvent(new Event('input'));
-  $('#chat-input').focus();
-  $('#chat-input').blur();
-
-  const allMessages = [...document.querySelectorAll("#messages .box")].map(el => {
-    const messageElement = el.querySelector('.messages');
-    if (messageElement) {
-      const role = el.classList.contains("right") ? "user" : "assistant";
-      const content = messageElement.textContent.trim();
-      return { role, content };
+    let input_message = $('#chat-input').val();
+    if (input_message.trim() === '') {
+        alert('Please enter a message');
+        return;
     }
-    return null;
-  }).filter(Boolean);
 
-  let chatHistory = allMessages.slice(-4);
+ // **** ADD THIS LINE ****
+ $('#info-message').addClass('hidden');
+ // **********************
 
-  const selectedStyle = document.querySelector("input[name='style']:checked").value;
-  
-  // Get the user's current reflective mode selection
-  const reflectiveCheckbox = document.querySelector("input[name='reflective-mode']");
-  let reflectiveMode = reflectiveCheckbox && reflectiveCheckbox.checked;
 
-  // --- NEW LOGIC: Override reflectiveMode if isFirstMessageAfterOliClick is true
-  if (isFirstMessageAfterOliClick) {
-    reflectiveMode = false;
-  }
+    document.querySelector("#messages .empty-div").style.display = "none";
 
-  // Create AI response container
-  let responseBox = document.createElement("div");
-  responseBox.classList.add("box", "ai-message");
+    // --- User message display ---
+    const messageBox = document.createElement("div");
+    messageBox.classList.add("box", "right");
+    const message = document.createElement("div");
+    message.classList.add("messages");
+    message.textContent = input_message;
+    messageBox.appendChild(message);
+    document.querySelector("#messages .messages-box").appendChild(messageBox);
 
-  let responseMessage = document.createElement("div");
-  responseMessage.classList.add("messages");
-  responseMessage.style.whiteSpace = "pre-wrap";
-
-  // "Meditating..." placeholder element
-  let meditatingElement = document.createElement("div");
-  meditatingElement.classList.add("loading-message");
-  meditatingElement.textContent = 'Meditating...';
-  responseMessage.appendChild(meditatingElement);
-
-  let messageWrapper = document.createElement("div");
-  messageWrapper.style.position = "relative";
-  messageWrapper.appendChild(responseMessage);
-  responseBox.appendChild(messageWrapper);
-
-  document.querySelector("#messages .messages-box").appendChild(responseBox);
-
-  // Adjust again after adding the placeholder
-  adjustChatboxHeight();  
-  updateScrollButtonVisibility();
-
-  // Animate dots after "Meditating"
-  let dotCount = 0;
-  const meditatingInterval = setInterval(() => {
-    dotCount = (dotCount + 1) % 4;
-    meditatingElement.textContent = 'Meditating' + '.'.repeat(dotCount);
-  }, 500);
-
-  try {
-    const response = await fetch(serverUrl + '/api/send-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-      body: JSON.stringify({
-        messages: chatHistory,
-        style: selectedStyle,
-        reflectiveMode: reflectiveMode  // <-- This will be false if isFirstMessageAfterOliClick was true
-      })
+    // --- UI Adjustments & Scroll (User Message) ---
+        requestAnimationFrame(() => { // Ensure DOM update before scrolling
+            // ***** ADD THIS LINE *****
+        autoScrollEnabled = true; // FORCE scroll down for this user message
+        // *************************
+        scrollToBottom();
+        if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+        if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
     });
+    // --- END UI Adjustments (User Message) ---
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    const md = window.markdownit();
+    // --- Input clearing and focus ---
+    $('#chat-input').val('');
+    if (typeof autoResize === 'function') autoResize(); // Resize input after clearing
 
-    let accumulatedText = '';
+    // --- MODIFICATION START ---
+    // Only refocus the input field if it's NOT an iOS device
+    // if (!isIOS) { // Assuming 'isIOS' is your globally defined boolean flag
+    //     $('#chat-input').focus();
+    // }
+    // --- MODIFICATION END ---
 
-    // Streaming
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        clearInterval(meditatingInterval);
-        meditatingElement.remove();
+    // --- History setup ---
+    const allMessages = [...document.querySelectorAll("#messages .box")].map(el => {
+        const messageElement = el.querySelector('.messages');
+        if (messageElement) {
+            const role = el.classList.contains("right") ? "user" : "assistant";
+            let content = '';
 
-        responseMessage.textContent = '';
-        accumulatedText = accumulatedText.replace(/<\/s>/g, '');
+            if (role === "assistant") {
+                // Clone the message element to avoid modifying the actual display
+                const clonedElement = messageElement.cloneNode(true);
+                // Find and remove the grounding links container *from the clone*
+                const linksContainer = clonedElement.querySelector('.grounding-links-container');
+                if (linksContainer) {
+                    linksContainer.remove();
+                }
+                // Get text content *from the modified clone*
+                content = clonedElement.textContent.trim();
+            } else {
+                // For user messages, just get the text content directly
+                content = messageElement.textContent.trim();
+            }
 
-        let dirtyHtml = md.render(accumulatedText);
-        let cleanHtml = DOMPurify.sanitize(dirtyHtml);
-        responseMessage.innerHTML = cleanHtml;
+            // Ensure content is not empty before adding
+            if (content) {
+               return { role, content };
+            }
+        }
+        return null;
+    }).filter(Boolean); // Keep filtering nulls
 
-        addCopyButton(messageWrapper);
+    // Keep only the last 4 valid messages for history
+    let chatHistory = allMessages.slice(-4);
+    console.log("Prepared Chat History:", JSON.stringify(chatHistory, null, 2)); // Add logging to verify
+// ---
+    // --- Style and Mode setup ---
+    //const selectedStyle = document.querySelector("input[name='style']:checked").value;
+    const speedyCheckbox = document.querySelector("input[name='speedy-mode']"); // <-- Find the NEW checkbox
+    const isSpeedyMode = speedyCheckbox ? speedyCheckbox.checked : false; // <-- Get its state, default false if not found
+    
+    const selectedStyle   = document.getElementById('selectedStyle')?.value || 'poetic';
+    console.log(`Style: ${selectedStyle}, Speedy Mode Active: ${isSpeedyMode}`); // Log the values being sent
+
+    // --- AI Response Container Setup ---
+    let responseBox = document.createElement("div");
+    responseBox.classList.add("box", "ai-message");
+    let responseMessage = document.createElement("div");
+    responseMessage.classList.add("messages"); // This is where the main text goes
+    responseMessage.style.whiteSpace = "pre-wrap";
+    let meditatingElement = document.createElement("div");
+    meditatingElement.classList.add("loading-message");
+    // meditatingElement.textContent = 'Meditating...'; // REMOVED - Set by new logic
+    // --- ADD THE LINE HERE ---
+    responseMessage.classList.add('is-loading'); // <-- ADD THIS LINE
+    // --- BEFORE THIS LINE ---
+    
+    responseMessage.appendChild(meditatingElement);
+    let messageWrapper = document.createElement("div"); // Used for copy button positioning
+    messageWrapper.style.position = "relative";
+    messageWrapper.appendChild(responseMessage);
+    responseBox.appendChild(messageWrapper); // Add wrapper (containing message div) to the box
+    document.querySelector("#messages .messages-box").appendChild(responseBox);
+    if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+    if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+
+    // --- Rotating Meditating Animation --- START ---
+    const meditatingMessages = [
+        'Meditating 🙏🏻', // Include emoji directly
+        'Seeking light 🕯️',
+        'Pondering the essence 🌱',
+        'Unraveling the mystery 🔍',
+        'Connecting thoughts 💭',
+        'Concentrating 🧘‍♂️',
+        'Finding the right words 🗣️',
+        'Balancing the concepts ⚖️',
+        'Searching for insights 🔎',
+        'Almost there ⏳'
+
+    ];
+    let currentMessageIndex = 0;
+    let dotCount = 0;
+    let dotInterval = null; // Renamed from meditatingInterval
+    let messageRotationInterval = null;
+
+    // Function to update the text content (base message + dots)
+    const updateMeditatingText = () => {
+        if (meditatingElement && meditatingElement.parentNode) {
+            const baseMessage = meditatingMessages[currentMessageIndex];
+            meditatingElement.textContent = baseMessage + '.'.repeat(dotCount);
+        }
+    };
+
+    // Set initial message
+    updateMeditatingText();
+
+    // Interval for animating the dots (every 500ms)
+    dotInterval = setInterval(() => {
+        dotCount = (dotCount + 1) % 6;
+        updateMeditatingText(); // Update text with new dot count
+        // Check if element still exists (redundant check, good practice)
+        if (!meditatingElement || !meditatingElement.parentNode) {
+             clearInterval(dotInterval);
+             if (messageRotationInterval) clearInterval(messageRotationInterval); // Clear other interval too
+        }
+    }, 500);
+
+    // Interval for rotating the base message (every 3 seconds)
+    messageRotationInterval = setInterval(() => {
+        currentMessageIndex = (currentMessageIndex + 1) % meditatingMessages.length;
+        // No need to call updateMeditatingText() here, dotInterval handles the visual update
+        // We just need to update the index for the *next* dotInterval cycle.
+        // However, to make the change immediate:
+        updateMeditatingText(); // Update immediately with new message and current dots
+
+        // Check if element still exists (redundant check, good practice)
+        if (!meditatingElement || !meditatingElement.parentNode) {
+             clearInterval(messageRotationInterval);
+             if (dotInterval) clearInterval(dotInterval); // Clear other interval too
+        }
+    }, 6000); // 6 seconds
+
+    // Helper function to clear both intervals
+    const clearMeditatingIntervals = () => {
+        if (dotInterval) clearInterval(dotInterval);
+        if (messageRotationInterval) clearInterval(messageRotationInterval);
+        dotInterval = null;
+        messageRotationInterval = null;
+    };
+    // --- Rotating Meditating Animation --- END ---
 
 
-        break;
-      }
+    // --- Variables for grounding links ---
+    let finalGroundingJsonString = null;
+    const groundingMarker = "###GROUNDING_SOURCES_START###";
+    let markerFound = false;
+    // ---
 
-      // As soon as data arrives, stop "Meditating..."
-      clearInterval(meditatingInterval);
-      meditatingElement.remove();
+    try {
+        const response = await fetch(serverUrl + '/api/send-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            body: JSON.stringify({
+                messages: chatHistory,
+                style: selectedStyle,
+                speedy_mode: isSpeedyMode // <-- Using snake_case for Python backend
+            })
+        });
 
-      let chunk = decoder.decode(value);
-      accumulatedText += chunk;
+        // --- Basic response check ---
+        if (!response.ok) {
+             clearMeditatingIntervals(); // Clear intervals on error
+             if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+             throw new Error(`HTTP error! status: ${response.status}`);
+         }
+        // ---
 
-      let dirtyHtml = md.render(accumulatedText);
-      let cleanHtml = DOMPurify.sanitize(dirtyHtml);
-      responseMessage.innerHTML = cleanHtml;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        const md = window.markdownit();
+        let accumulatedText = '';
+
+                   // Streaming
+                   while (true) {
+                    const { done, value } = await reader.read();
+
+                    // Stop meditating animation and remove element on first chunk
+                    if (value && meditatingElement && meditatingElement.parentNode) {
+                        clearMeditatingIntervals(); // Clear intervals
+                        meditatingElement.remove();
+                        meditatingElement = null; // Nullify to prevent further checks
+                        responseMessage.classList.remove('is-loading'); // <-- ADD (Remove class here)
+                        if (!markerFound) {
+                            responseMessage.innerHTML = ''; // Clear placeholder space
+                        }
+                    }
+
+                    if (value) {
+                        let chunk = decoder.decode(value);
+
+                        // Marker Detection Logic
+                        const markerIndex = chunk.indexOf(groundingMarker);
+
+                        let cleanHtml = ''; // Declare cleanHtml here
+
+                        if (markerIndex !== -1) {
+                            const textPart = chunk.substring(0, markerIndex);
+                            if (!markerFound) {
+                                accumulatedText += textPart;
+                                // Render final text part before marker
+                                let dirtyHtml = md.render(accumulatedText.replace(/<\/s>/g, ''));
+                                cleanHtml = DOMPurify.sanitize(dirtyHtml); // Assign here
+                                responseMessage.innerHTML = cleanHtml;
+                            }
+                            // Store the JSON part
+                            finalGroundingJsonString = chunk.substring(markerIndex + groundingMarker.length).trimStart();
+                            markerFound = true;
+
+                        } else if (!markerFound) {
+                            // Append chunk to main text and render progressively
+                            accumulatedText += chunk;
+                            let dirtyHtml = md.render(accumulatedText.replace(/<\/s>/g, ''));
+                            cleanHtml = DOMPurify.sanitize(dirtyHtml); // Assign here
+                            responseMessage.innerHTML = cleanHtml;
+                        }
+                        // If marker was found previously, finalGroundingJsonString will just keep accumulating
+                        // We don't update innerHTML again in that case until 'done'
+
+                        // *** ADDED: Ensure scrolling and layout adjustments happen on each update ***
+                        if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                        if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                        scrollToBottom(); // <-- Explicitly scroll after content update
+                        // *** END ADDED ***
+
+                    }
+
+                    // Done condition check
+                    if (done) {
+                        clearMeditatingIntervals(); // Ensure cleared on done
+                        if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove(); // Final cleanup if needed
+
+                        // Final rendering of accumulated text (only needed if marker was never found AND content changed)
+                        if (!markerFound) {
+                             // No need to re-render if it was already done in the loop
+                        }
 
 
+                        // --- Parse JSON and Display Links ---
+                        let groundingSources = [];
+                        console.log("Attempting to parse grounding JSON. String received:", finalGroundingJsonString);
+                        if (finalGroundingJsonString) {
+                            try {
+                                groundingSources = JSON.parse(finalGroundingJsonString.trim());
+                                console.log("Parsed Grounding Sources:", groundingSources);
+                                displayDomainOnlyCardLinks(responseMessage, groundingSources); // Pass responseMessage div
+                            } catch (e) {
+                                console.error("Error parsing final grounding JSON:", e, "Data:", finalGroundingJsonString);
+                            }
+                        } else {
+                            console.log("No grounding JSON string received (marker likely not found).");
+                        }
+                        // --- END ---
+
+                        // Add Copy Button
+                        addCopyButton(messageWrapper);
+
+                        // *** MOVED UI Adjustments into the loop, but a final scroll is safe ***
+                          scrollToBottom(); // Final scroll after everything is done
+                        // *** END MOVED ***
+
+                        break; // Exit loop
+                    }
+                } // End while loop
+
+    } catch (error) {
+        console.error('Error in sendMessage:', error);
+        clearMeditatingIntervals(); // Clear intervals on catch
+        if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+        responseMessage.classList.remove('is-loading'); // <-- ADD
+        if (responseMessage) {
+            responseMessage.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+        }
     }
+    finally {
+        // Ensure intervals are cleared in finally block as a safety net,
+        // though they should be cleared earlier in most cases.
+        clearMeditatingIntervals();
 
-    $("#img-btn").hide();
-    $("#send-btn").show();
-  } catch (error) {
-    console.error('Error in sendMessage:', error);
-    alert(`An error occurred: ${error.message}`);
+        if (typeof isFirstMessageAfterOliClick !== 'undefined' && isFirstMessageAfterOliClick) {
+            isFirstMessageAfterOliClick = false;
+        }
+        // Assuming these buttons exist and are managed elsewhere
+        // $("#img-btn").hide();
+        // $("#send-btn").show();
 
-    clearInterval(meditatingInterval);
-    document.getElementById("chat-input").value = "";
-    $("#img-btn").hide();
-    $("#send-btn").hide();
-  } 
-  finally {
-    // --- NEW LOGIC: After the message is sent, set the variable back to false
-    if (isFirstMessageAfterOliClick) {
-      isFirstMessageAfterOliClick = false;
+        // Re-focus input if not iOS (already handled earlier, but safe to keep)
+        // if (!isIOS) {
+        //      $('#chat-input').focus();
+        // }
     }
-  }
 }
 
-    
-      // Function to add copy button
 
-        // Function to remove all existing copy buttons
-        function removeAllCopyButtons() {
-            document.querySelectorAll('.copy-button').forEach(button => button.remove());
-        }
+
+// Function to add copy button (Adjusted to exclude card container)
+function removeAllCopyButtons() {
+    document.querySelectorAll('.copy-button').forEach(button => button.remove());
+}
 
 function addCopyButton(wrapper) {
     removeAllCopyButtons();
     let copyButton = document.createElement("button");
-    copyButton.innerHTML = '<div class="copy-icon"></div>'; // Initial icon
+    copyButton.innerHTML = '<div class="copy-icon"></div>'; // Use CSS for the icon
     copyButton.classList.add("copy-button");
     copyButton.style.position = "absolute";
     copyButton.style.bottom = "5px";
@@ -1817,16 +2663,30 @@ function addCopyButton(wrapper) {
 
     copyButton.addEventListener("click", function() {
         const allMessages = document.querySelectorAll("#messages .box");
-        const lastTwoMessages = Array.from(allMessages).slice(-2);
+        const messageBox = wrapper.closest('.box.ai-message');
+        if (!messageBox) return;
+
+        const userMessageBox = messageBox.previousElementSibling;
+        const messagesToCopy = [];
+        if (userMessageBox && userMessageBox.classList.contains('right')) {
+            messagesToCopy.push(userMessageBox);
+        }
+        messagesToCopy.push(messageBox);
+
         let textToCopyPlain = "";
         let textToCopyHTML = "";
 
-        lastTwoMessages.forEach((messageBox) => {
-            const messageElement = messageBox.querySelector('.messages');
+        messagesToCopy.forEach((box) => {
+            const messageElement = box.querySelector('.messages');
             if (messageElement) {
-                const role = messageBox.classList.contains("right") ? "User" : "Olier";
-                const contentPlain = messageElement.textContent.trim();
-                const contentHTML = messageElement.innerHTML.trim();
+                const role = box.classList.contains("right") ? "User" : "Olier";
+                const clonedElement = messageElement.cloneNode(true);
+                const linksContainer = clonedElement.querySelector('.grounding-links-container');
+                if (linksContainer) {
+                    linksContainer.remove();
+                }
+                const contentPlain = clonedElement.textContent.trim();
+                const contentHTML = clonedElement.innerHTML.trim();
 
                 textToCopyPlain += `${role}: ${contentPlain}\n\n`;
                 textToCopyHTML += `<p><strong>${role}:</strong></p>${contentHTML}<br>`;
@@ -1840,376 +2700,564 @@ function addCopyButton(wrapper) {
             });
 
             navigator.clipboard.write([clipboardItem]).then(() => {
-                // Change icon to tick on success
                 copyButton.innerHTML = '<div class="tick-icon">✓</div>';
             }).catch(err => {
                 console.error('Failed to copy text: ', err);
             });
         } else {
-            console.log("No messages to copy.");
+            console.log("No messages found to copy.");
         }
     });
-
-    wrapper.appendChild(copyButton);
+ // --- CHANGE THIS PART ---
+    // Find the actual message bubble div INSIDE the wrapper
+    const messageDiv = wrapper.querySelector('.messages'); 
+    if (messageDiv) {
+        messageDiv.appendChild(copyButton); // Append to the inner message bubble
+    } else {
+        // Fallback or error handling if needed, though unlikely
+        wrapper.appendChild(copyButton); 
+        console.warn("Could not find .messages div in wrapper, appending copy button to wrapper.");
+    }
+    // --- END CHANGE ---
 }
 
 
-
-
-// INAGE GENERATION EVENT
-$('#img-btn').on('click', async function() {
-    let input_message = $('#chat-input').val();
-
-    if (input_message.trim() === '') {
-        alert('Please enter a message');
+// --- NEW: Function displayDomainOnlyCardLinks with Toggle ---
+function displayDomainOnlyCardLinks(messageContentDiv, sources) {
+    if (!Array.isArray(sources) || sources.length === 0) {
+        console.log("No valid grounding sources to display.");
         return;
     }
 
-    // Use regex to extract the text inside the final quotes
-    const match = input_message.match(/"([^"]+)"$/);
-    let extractedText = input_message;
-    if (match && match[1]) {
-        extractedText = match[1];
+    const existingContainer = messageContentDiv.querySelector('.grounding-links-container');
+    if (existingContainer) {
+        existingContainer.remove();
     }
 
-    document.querySelector("#messages .empty-div").style.display = "none";
+    const linksOuterContainer = document.createElement('div');
+    linksOuterContainer.classList.add('grounding-links-container');
+    linksOuterContainer.style.marginTop = '15px';
+    linksOuterContainer.style.paddingTop = '10px';
+    linksOuterContainer.style.borderTop = '1px solid #eee';
 
-    const messageBox = document.createElement("div");
-    messageBox.classList.add("box", "right");
+    // --- Clickable title/toggle area ---
+    const titleToggleArea = document.createElement('div');
+    titleToggleArea.style.display = 'flex';
+    titleToggleArea.style.alignItems = 'center';
+    titleToggleArea.style.cursor = 'pointer';
+    titleToggleArea.style.marginBottom = '8px';
 
-    const message = document.createElement("div");
-    message.classList.add("messages");
-    message.textContent = input_message;
+    const titleElement = document.createElement('strong');
+    titleElement.textContent = 'Sources';
+    titleElement.style.fontSize = '0.9em';
+    titleElement.style.marginRight = '5px';
 
-    messageBox.appendChild(message);
-    document.querySelector("#messages .messages-box").appendChild(messageBox);
+    const toggleIcon = document.createElement('span');
+    toggleIcon.classList.add('toggle-icon');
+    toggleIcon.innerHTML = '&#9662;'; // Down arrow
+    toggleIcon.style.fontSize = '0.8em';
+    toggleIcon.style.transition = 'transform 0.2s ease';
 
+    titleToggleArea.appendChild(titleElement);
+    titleToggleArea.appendChild(toggleIcon);
+    linksOuterContainer.appendChild(titleToggleArea);
 
-        adjustChatboxHeight();
-        updateScrollButtonVisibility();
+    // --- Flex container for the cards (Initially Hidden) ---
+    const cardsFlexContainer = document.createElement('div');
+    cardsFlexContainer.classList.add('grounding-cards-flex-container');
+    cardsFlexContainer.style.display = 'none'; // Hidden
+    cardsFlexContainer.style.flexWrap = 'wrap';
+    cardsFlexContainer.style.gap = '8px'; // Slightly smaller gap
+    cardsFlexContainer.style.marginTop = '5px';
 
-    // Clear the input field after the message is added to the chat
-    $('#chat-input').val('');
-    chatInput.dispatchEvent(new Event('input')); 
+    // --- Add each source as a card ---
+    sources.forEach((source, index) => {
+        if (typeof source === 'object' && source !== null && source.uri) {
+            const cardLink = document.createElement('a');
+            cardLink.href = source.uri; // Link still uses redirect URL
+            cardLink.target = '_blank';
+            cardLink.rel = 'noopener noreferrer';
+            cardLink.classList.add('grounding-source-card');
 
-    try {
-        // Step 1: Generate and stream the artistic description
-        // Here, instead of sending the entire prompt, send only the extracted text
-        const response = await fetch(serverUrl + '/api/generate-description', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: extractedText })
-        });
+            // Card Styling
+            cardLink.style.display = 'inline-block'; // Changed to inline-block for better wrapping
+            cardLink.style.border = '1px solid #e0e0e0';
+            cardLink.style.borderRadius = '12px'; // More rounded
+            cardLink.style.padding = '6px 10px'; // Adjusted padding
+            cardLink.style.textDecoration = 'none';
+            cardLink.style.color = '#333'; // Darker text
+            cardLink.style.backgroundColor = '#f9f9f9';
+            cardLink.style.fontSize = '0.8em'; // Slightly smaller font
+            cardLink.style.transition = 'background-color 0.2s ease, border-color 0.2s ease';
+            cardLink.style.whiteSpace = 'nowrap'; // Prevent domain wrapping
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
+            cardLink.onmouseover = () => { cardLink.style.backgroundColor = '#eee'; cardLink.style.borderColor = '#ccc'; };
+            cardLink.onmouseout = () => { cardLink.style.backgroundColor = '#f9f9f9'; cardLink.style.borderColor = '#e0e0e0'; };
 
-        let responseBox = document.createElement("div");
-        responseBox.classList.add("box", "ai-message");
-        let responseMessage = document.createElement("div");
-        responseMessage.classList.add("messages");
-        responseMessage.style.whiteSpace = "pre-wrap";
+            // --- Determine and display Domain ONLY ---
+            let displayDomain = 'Source'; // Default fallback
+            // Prioritize source.title if it looks like a domain
+            if (source.title && source.title.includes('.') && !source.title.includes(' ') && !source.title.includes('<')) {
+                 displayDomain = source.title.replace(/^www\./, '');
+            } else {
+                 // Fallback: Try to parse the original redirect URI
+                 try {
+                     const url = new URL(source.uri);
+                     // Heuristic: If hostname is vertex..., it's likely a fallback itself, prefer title if available
+                     if (url.hostname.includes('vertexaisearch') && source.title && source.title.trim() !== '') {
+                         displayDomain = source.title.trim(); // Use title if vertex URL detected
+                     } else {
+                         displayDomain = url.hostname.replace(/^www\./, '');
+                     }
+                 } catch (e) {
+                    // Final fallback if parsing fails or title wasn't domain-like
+                    displayDomain = (source.title && source.title.trim() !== '') ? source.title.trim() : `Source ${index + 1}`;
+                 }
+            }
+            cardLink.textContent = displayDomain; // Set the visible domain text directly on the link
+            // ---
 
-        // Create a wrapper for the message content
-        let messageWrapper = document.createElement("div");
-        messageWrapper.style.position = "relative";
-
-        messageWrapper.appendChild(responseMessage);
-        responseBox.appendChild(messageWrapper);
-        document.querySelector("#messages .messages-box").appendChild(responseBox);
-
-
-            adjustChatboxHeight();
-            updateScrollButtonVisibility();
-
-
-
- // Streaming function
-let accumulatedText = '';  // To store the accumulated text
-
-while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-        // Add copy button after streaming is complete
-        addCopyButton(messageWrapper);
-        break;
-    }
-
-    let chunk = decoder.decode(value);
-
-    accumulatedText += chunk;
-
-    // Update the displayed text
-    responseMessage.innerHTML = accumulatedText;
-}
-
-function addSaveImageButton(container, imageUrl) {
-    // Create the save/download button
-    let saveButton = document.createElement("button");
-    saveButton.innerHTML = '<i class="fas fa-download"></i>'; // Use a download icon
-    saveButton.classList.add("save-image-button"); // Apply the CSS class
-
-    saveButton.addEventListener("click", function() {
-        saveImage(imageUrl);
+            cardsFlexContainer.appendChild(cardLink);
+        } else {
+            console.warn("Skipping invalid source item:", source);
+        }
     });
 
-    // Append the save button to the container after the image
-    container.appendChild(saveButton);
+    // Append the flex container (initially hidden)
+    linksOuterContainer.appendChild(cardsFlexContainer);
 
+    // --- Add Toggle Functionality ---
+titleToggleArea.addEventListener('click', () => {
+    // ***** 1. Get the messages container and save current scroll position *****
+    const messagesContainer = document.getElementById('messages');
+    // const currentScrollTop = messagesContainer.scrollTop;
+    // ***********************************************************************
 
+    const isHidden = cardsFlexContainer.style.display === 'none';
+    cardsFlexContainer.style.display = isHidden ? 'flex' : 'none'; // Toggle display
+    toggleIcon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)'; // Rotate arrow
 
-    async function saveImage(imageUrl) {
-        const capPlatform = (typeof Capacitor !== 'undefined') ? Capacitor.getPlatform() : 'web';
-    
-        // Get the current timestamp in local time
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-    
-        // Format the timestamp as 'YYYY-MM-DD_HH-MM-SS'
-        const timestamp = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-    
-        // Generate a unique filename
-        const fileName = `Olier_artwork_${timestamp}.png`;
-    
-        try {
-            // Fetch the image as a blob
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-    
-            if (capPlatform === 'web') {
-                // **Web capPlatform Logic**
-                const url = URL.createObjectURL(blob);
-    
-                // Create a temporary link to trigger the download
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-    
-                // Clean up
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-    
-                alert(`Image saved successfully as ${fileName}.`);
-    
-            } else {
-                // **Mobile capPlatform Logic**
-                const { Filesystem } = Capacitor.Plugins;
-    
-                // Check and request permissions (only necessary on Android)
-                if (capPlatform === 'android') {
-                    let permission = await Filesystem.checkPermissions();
-                    if (permission.publicStorage !== 'granted') {
-                        permission = await Filesystem.requestPermissions();
-                        if (permission.publicStorage !== 'granted') {
-                            alert('Permission to access storage was denied.');
-                            return;
-                        }
-                    }
-                }
-    
-                // Convert blob to base64 data
-                const reader = new FileReader();
-                reader.onloadend = async function() {
-                    const base64data = reader.result.split(',')[1]; // Remove data URL prefix
-    
-                    // **Save the file using 'DOCUMENTS' directory**
-                    await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64data,
-                        directory: 'DOCUMENTS', // Use string literal instead of FilesystemDirectory.Documents
-                        // Remove the 'encoding' option to write binary data
-                        recursive: true
-                    });
-    
-                    alert(`Image saved successfully as ${fileName} in Documents.`);
-                };
-    
-                reader.readAsDataURL(blob);
-            }
-        } catch (error) {
-            console.error('Error saving image:', error);
-            alert('Failed to save image.');
-        }
+    // Let these functions run - adjustChatboxHeight WILL scroll to bottom here
+    if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+    if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+
+    // ***** 2. Immediately restore the saved scroll position *****
+    // messagesContainer.scrollTop = currentScrollTop;
+    // **********************************************************
+
+    // Optional: You might call updateScrollButtonVisibility *again* after restoring
+    // scroll position, just in case the restored position affects the button state.
+    // if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+});
+// ---
+    // ---
+
+    // Append the whole links section to the message content div only if cards were added
+    if (cardsFlexContainer.hasChildNodes()) {
+        messageContentDiv.appendChild(linksOuterContainer);
+    } else {
+        console.log("No valid links were generated from sources.");
     }
 }
+// --- END UPDATED ---
 
- 
-       // Function to remove all existing copy buttons
-        function removeAllCopyButtons() {
-            document.querySelectorAll('.copy-button').forEach(button => button.remove());
+
+// ===============================================
+// IMAGE GENERATION EVENT HANDLER
+// REPLACE YOUR ENTIRE EXISTING $('#img-btn').on('click', ...) BLOCK WITH THIS NEW ONE:
+// ===============================================
+    $('#img-btn').on('click', async function() {
+        $('#info-message').addClass('hidden');
+
+        let input_message = $('#chat-input').val();
+
+        if (input_message.trim() === '') {
+            alert('Please enter a message');
+            return;
         }
 
-        // Function to add copy button
-        function addCopyButton(wrapper) {
-            removeAllCopyButtons();
-            let copyButton = document.createElement("button");
-            copyButton.innerHTML = '<div class="copy-icon"></div>';
-            copyButton.classList.add("copy-button");
-            copyButton.style.position = "absolute";
-            copyButton.style.bottom = "5px";
-            copyButton.style.right = "5px";
-            copyButton.style.background = "none";
-            copyButton.style.border = "none";
-            copyButton.style.cursor = "pointer";
-            copyButton.style.padding = "5px";
-
-            copyButton.addEventListener("click", function() {
-                const allMessages = document.querySelectorAll("#messages .box");
-                const lastTwoMessages = Array.from(allMessages).slice(-2);
-                let textToCopy = "";
-
-                lastTwoMessages.forEach((messageBox, index) => {
-                    const messageElement = messageBox.querySelector('.messages');
-                    if (messageElement) {
-                        const role = messageBox.classList.contains("right") ? "User" : "Olier";
-                        const content = messageElement.textContent.trim();
-                        textToCopy += `${role}: ${content}\n\n`;
-                    }
-                });
-
-                if (textToCopy) {
-                    navigator.clipboard.writeText(textToCopy.trim()).then(() => {
-                        alert("Last two messages copied to clipboard!");
-                    }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                    });
-                } else {
-                    alert("No messages to copy.");
-                }
-            });
-
-            wrapper.appendChild(copyButton);
+        const match = input_message.match(/"([^"]+)"$/);
+        let extractedText = input_message;
+        if (match && match[1]) {
+            extractedText = match[1];
         }
 
-        // After description is generated, add the "Image Generating..." message
-        let loadingBox = document.createElement("div");
-        loadingBox.classList.add("box");
-        let loadingMessage = document.createElement("div");
-        loadingMessage.classList.add("messages", "loading-message");
-        loadingMessage.textContent = "Image Generating";
-        loadingBox.appendChild(loadingMessage);
-        document.querySelector("#messages .messages-box").appendChild(loadingBox);
+        document.querySelector("#messages .empty-div").style.display = "none";
 
-        // Animate the loading message
-        let dots = 0;
-        const loadingInterval = setInterval(() => {
-            dots = (dots + 1) % 4;
-            loadingMessage.textContent = "Image Generating" + ".".repeat(dots);
-        }, 500);
+        const messageBox = document.createElement("div");
+        messageBox.classList.add("box", "right");
+        const message = document.createElement("div");
+        message.classList.add("messages");
+        message.textContent = input_message;
+        messageBox.appendChild(message);
+        document.querySelector("#messages .messages-box").appendChild(messageBox);
 
-        // Step 2: Generate the image using the fully streamed artistic description
-        const imageResponse = await $.ajax({
-            url: serverUrl + '/api/generate-flux-image',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ prompt: accumulatedText }),  // Change 'description' to 'prompt'
-            dataType: 'json'
+        autoScrollEnabled = true;
+        requestAnimationFrame(() => {
+            scrollToBottom(); // Assumes global scrollToBottom is defined
+            adjustChatboxHeight(); // Assumes global adjustChatboxHeight is defined
+            updateScrollButtonVisibility(); // Assumes global updateScrollButtonVisibility is defined
         });
 
-        // Clear the loading interval and remove the loading message
-        clearInterval(loadingInterval);
-        loadingBox.remove();
-
-            // **Adjust chatbox height after removing loading message**
-
-                adjustChatboxHeight();
-                updateScrollButtonVisibility();
-
-// Create a new box for the image(s)
-let imageBox = document.createElement("div");
-imageBox.classList.add("box");
-let imageMessage = document.createElement("div");
-imageMessage.classList.add("messages");
-imageBox.appendChild(imageMessage);
-
-// Handle potentially multiple images
-imageResponse.images.forEach(image => {
-    // Create a container for the image and button
-    let imageContainer = document.createElement("div");
-    imageContainer.style.display = "inline-block"; // Keep the image and button together
-    imageContainer.style.marginTop = "10px"; // Add space between images
-
-    // Create the image element
-    const img = document.createElement("img");
-    img.src = image.url;
-    img.alt = "Generated Flux Artwork";
-    img.style.maxWidth = "100%";
-    img.style.display = "block"; // Ensure it occupies full width of the container
-
-    // Append the image to the container
-    imageContainer.appendChild(img);
-
-    // **Wait for the image to load before adding the button**
-    img.onload = function() {
-        // Add the save image button after the image
-        addSaveImageButton(imageContainer, image.url);
-    };
-
-    // Optionally, handle image loading errors
-    img.onerror = function() {
-        console.error('Error loading image:', image.url);
-        // You can display an error message or placeholder image here
-    };
-
-    // Append the container to your imageMessage container
-    imageMessage.appendChild(imageContainer);
-});
-
-document.querySelector("#messages .messages-box").appendChild(imageBox);
-
-// Focus on the input box after image generation
-
-if (isDesktop) {
-    const chatInput = document.getElementById("chat-input");
-    chatInput.focus();
-    chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
-}
-// Hide the image button after generating the image
-$("#img-btn").hide();
-$("#send-btn").show();
-    } catch (error) {
-        let errorMessage = 'An error occurred while generating the image.';
-        if (error.responseJSON && error.responseJSON.error) {
-            errorMessage = error.responseJSON.error;
+        $('#chat-input').val('');
+        // chatInput is assumed to be a globally/higher-scoped cached DOM element
+        if (typeof chatInput !== 'undefined' && chatInput) {
+             chatInput.dispatchEvent(new Event('input'));
         }
-        alert(errorMessage);
 
-        document.getElementById("chat-input").value = "";
 
-        // Hide buttons if an error occurs
-        $("#img-btn").hide();
-        $("#send-btn").hide();
+        // --- AI Response Container Setup for Description ---
+        let descriptionResponseBox = document.createElement("div");
+        descriptionResponseBox.classList.add("box", "ai-message");
+        let descriptionResponseMessage = document.createElement("div");
+        descriptionResponseMessage.classList.add("messages");
+        descriptionResponseMessage.style.whiteSpace = "pre-wrap";
+        let meditatingElement = document.createElement("div");
+        meditatingElement.classList.add("loading-message");
+        descriptionResponseMessage.classList.add('is-loading');
+
+        descriptionResponseMessage.appendChild(meditatingElement);
+        let descriptionMessageWrapper = document.createElement("div");
+        descriptionMessageWrapper.style.position = "relative";
+        descriptionMessageWrapper.appendChild(descriptionResponseMessage);
+        descriptionResponseBox.appendChild(descriptionMessageWrapper);
+        document.querySelector("#messages .messages-box").appendChild(descriptionResponseBox);
+
+        requestAnimationFrame(() => {
+            autoScrollEnabled = true;
+            scrollToBottom();
+            if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+            if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+        });
+
+        // --- Rotating Meditating Animation --- START ---
+        const meditatingMessages = [
+            'Creating vision 🎨', 'Dreaming shapes ✨', 'Painting pixels 🖌️',
+            'Imagining worlds 🌍', 'Visualizing thoughts 💡', 'Focusing energy 🌟',
+            'Crafting art 🖼️', 'Almost ready... ⏳'
+        ];
+        let currentMessageIndex = 0;
+        let dotCount = 0;
+        let dotInterval = null;
+        let messageRotationInterval = null;
+
+        const updateMeditatingText = () => {
+            if (meditatingElement && meditatingElement.parentNode) {
+                const baseMessage = meditatingMessages[currentMessageIndex];
+                meditatingElement.textContent = baseMessage + '.'.repeat(dotCount);
+            }
+        };
+        updateMeditatingText();
+        dotInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 6;
+            updateMeditatingText();
+            if (!meditatingElement || !meditatingElement.parentNode) {
+                clearInterval(dotInterval);
+                if (messageRotationInterval) clearInterval(messageRotationInterval);
+            }
+        }, 500);
+        messageRotationInterval = setInterval(() => {
+            currentMessageIndex = (currentMessageIndex + 1) % meditatingMessages.length;
+            updateMeditatingText();
+            if (!meditatingElement || !meditatingElement.parentNode) {
+                clearInterval(messageRotationInterval);
+                if (dotInterval) clearInterval(dotInterval);
+            }
+        }, 4000);
+        const clearMeditatingIntervals = () => {
+            if (dotInterval) clearInterval(dotInterval);
+            if (messageRotationInterval) clearInterval(messageRotationInterval);
+            dotInterval = null; messageRotationInterval = null;
+        };
+        // --- Rotating Meditating Animation --- END ---
+
+        try {
+            const response = await fetch(serverUrl + '/api/generate-description', { // serverUrl is global
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: extractedText })
+            });
+
+            if (!response.ok) {
+                clearMeditatingIntervals();
+                if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+                descriptionResponseMessage.classList.remove('is-loading');
+                descriptionResponseMessage.innerHTML = `<span style="color: red;">Error generating description: ${response.statusText}</span>`;
+                throw new Error(`HTTP error generating description! status: ${response.status}`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let firstChunkReceived = false;
+            let accumulatedText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (value) {
+                    if (!firstChunkReceived) {
+                        clearMeditatingIntervals();
+                        if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+                        descriptionResponseMessage.classList.remove('is-loading');
+                        descriptionResponseMessage.innerHTML = '';
+                        firstChunkReceived = true;
+                    }
+                    let chunk = decoder.decode(value);
+                    accumulatedText += chunk;
+                    descriptionResponseMessage.innerHTML = accumulatedText;
+                    requestAnimationFrame(() => {
+                        autoScrollEnabled = true; scrollToBottom();
+                        if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                        if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                    });
+                }
+                if (done) {
+                    addCopyButton(descriptionMessageWrapper); // <<<< CALLS GLOBAL addCopyButton
+                    break;
+                }
+            }
+
+            let loadingBox = document.createElement("div");
+            loadingBox.classList.add("box", "ai-message");
+            let loadingMessage = document.createElement("div");
+            loadingMessage.classList.add("messages", "loading-message");
+            loadingMessage.textContent = "Conjuring visuals";
+            loadingBox.appendChild(loadingMessage);
+            document.querySelector("#messages .messages-box").appendChild(loadingBox);
+
+            requestAnimationFrame(() => {
+                autoScrollEnabled = true; scrollToBottom();
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+            });
+
+            let imgGenDots = 0;
+            const loadingInterval = setInterval(() => {
+                imgGenDots = (imgGenDots + 1) % 4;
+                loadingMessage.textContent = "Conjuring visuals" + ".".repeat(imgGenDots);
+            }, 500);
+
+            const imageResponse = await $.ajax({ // $ is global jQuery
+                url: serverUrl + '/api/generate-flux-image',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ prompt: accumulatedText }),
+                dataType: 'json'
+            });
+
+            clearInterval(loadingInterval);
+            loadingBox.remove();
+
+            requestAnimationFrame(() => {
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+            });
+
+            let imageBox = document.createElement("div");
+            imageBox.classList.add("box", "ai-message");
+            let imageMessage = document.createElement("div");
+            imageMessage.classList.add("messages");
+            imageBox.appendChild(imageMessage);
+
+            imageResponse.images.forEach(image => {
+                let imageContainer = document.createElement("div");
+                imageContainer.style.display = "inline-block";
+                imageContainer.style.marginTop = "10px";
+                imageContainer.style.position = "relative";
+
+                const img = document.createElement("img");
+                img.src = image.url;
+                img.alt = "Generated Flux Artwork";
+                img.style.maxWidth = "100%";
+                img.style.display = "block";
+                img.style.borderRadius = "8px";
+                imageContainer.appendChild(img);
+
+                img.onload = function() {
+                    addSaveImageButton(imageContainer, image.url); // <<<< Calls the NESTED addSaveImageButton
+                    requestAnimationFrame(() => {
+                        autoScrollEnabled = true; scrollToBottom();
+                        if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                        if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+                    });
+                };
+                img.onerror = function() {
+                    console.error('Error loading image:', image.url);
+                    imageContainer.innerHTML = `<span style="color:red; font-size:0.8em;">Error loading image.</span>`;
+                };
+                imageMessage.appendChild(imageContainer);
+            });
+            document.querySelector("#messages .messages-box").appendChild(imageBox);
+
+            requestAnimationFrame(() => {
+                autoScrollEnabled = true; scrollToBottom();
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+            });
+
+             // isDesktop is assumed to be a globally defined variable
+            if (typeof isDesktop !== 'undefined' && isDesktop) {
+                const chatInputElement = document.getElementById("chat-input"); // Re-fetch or use cached
+                if (chatInputElement) {
+                    chatInputElement.focus();
+                    chatInputElement.setSelectionRange(chatInputElement.value.length, chatInputElement.value.length);
+                }
+            }
+            $("#img-btn").hide(); // $ is global jQuery
+            $("#send-btn").show();
+
+        } catch (error) {
+            clearMeditatingIntervals();
+            if (meditatingElement && meditatingElement.parentNode) meditatingElement.remove();
+            if (descriptionResponseMessage && descriptionResponseMessage.classList.contains('is-loading')) {
+                descriptionResponseMessage.classList.remove('is-loading');
+                descriptionResponseMessage.innerHTML = `<span style="color: red;">An error occurred.</span>`;
+            }
+            const existingLoadingBox = document.querySelector(".messages-box .box .loading-message")?.closest('.box');
+            if (existingLoadingBox) existingLoadingBox.remove();
+
+            let errorMessageText = 'An error occurred while generating the image.';
+            if (error.responseJSON && error.responseJSON.error) {
+                errorMessageText = error.responseJSON.error;
+            } else if (error.message) {
+                errorMessageText = error.message;
+            }
+            const errorBox = document.createElement("div");
+            errorBox.classList.add("box", "ai-message");
+            const errorMessageDiv = document.createElement("div");
+            errorMessageDiv.classList.add("messages");
+            errorMessageDiv.innerHTML = `<span style="color: red;">${errorMessageText}</span>`;
+            errorBox.appendChild(errorMessageDiv);
+            document.querySelector("#messages .messages-box").appendChild(errorBox);
+
+            requestAnimationFrame(() => {
+                autoScrollEnabled = true; scrollToBottom();
+                if (typeof adjustChatboxHeight === 'function') adjustChatboxHeight();
+                if (typeof updateScrollButtonVisibility === 'function') updateScrollButtonVisibility();
+            });
+
+            document.getElementById("chat-input").value = "";
+            $("#img-btn").hide();
+            $("#send-btn").show();
+        }
+
+        // --- NESTED HELPER FUNCTION FOR THIS EVENT ONLY ---
+        // This function is defined INSIDE the image button click handler
+        // because it's only used here.
+        function addSaveImageButton(container, imageUrl) {
+            let saveButton = document.createElement("button");
+            saveButton.innerHTML = '<i class="fas fa-download"></i>';
+            saveButton.classList.add("save-image-button");
+
+            saveButton.addEventListener("click", function(event) {
+                event.stopPropagation();
+                saveImage(imageUrl); // Calls the nested saveImage
+            });
+            container.appendChild(saveButton);
+
+            async function saveImage(imageUrlToSave) {
+                // Capacitor and Filesystem are assumed to be available globally if not on web
+                const capPlatform = (typeof Capacitor !== 'undefined') ? Capacitor.getPlatform() : 'web';
+                const now = new Date();
+                const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+                const fileName = `Olier_artwork_${timestamp}.png`;
+
+                try {
+                    const fetchResponse = await fetch(imageUrlToSave);
+                    const blob = await fetchResponse.blob();
+
+                    if (capPlatform === 'web') {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        const originalButtonText = saveButton.innerHTML;
+                        saveButton.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => { saveButton.innerHTML = originalButtonText; }, 2000);
+                    } else {
+                        const { Filesystem } = Capacitor.Plugins; // Assuming Capacitor.Plugins is globally available
+                        if (capPlatform === 'android') { // capPlatform is from the nested scope
+                            let permission = await Filesystem.checkPermissions();
+                            if (permission.publicStorage !== 'granted') {
+                                permission = await Filesystem.requestPermissions();
+                                if (permission.publicStorage !== 'granted') {
+                                    alert('Storage permission denied.'); return;
+                                }
+                            }
+                        }
+                        const reader = new FileReader();
+                        reader.onloadend = async function() {
+                            const base64data = reader.result.split(',')[1];
+                            await Filesystem.writeFile({
+                                path: fileName, data: base64data, directory: 'DOCUMENTS', recursive: true
+                            });
+                            const originalButtonText = saveButton.innerHTML;
+                            saveButton.innerHTML = '<i class="fas fa-check"></i>';
+                            alert(`Image saved as ${fileName} in Documents.`);
+                            setTimeout(() => { saveButton.innerHTML = originalButtonText; }, 2000);
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                } catch (fetchError) {
+                    console.error('Error saving image:', fetchError);
+                    alert('Failed to save image.');
+                    saveButton.innerHTML = '<i class="fas fa-times"></i>';
+                    setTimeout(() => { saveButton.innerHTML = '<i class="fas fa-download"></i>'; }, 2000);
+                }
+            }
+        }
+        // --- END OF NESTED HELPER FUNCTION ---
+    });
+    // ===============================================
+    // END OF IMAGE GENERATION EVENT HANDLER
+    // ===============================================
+
+
+
+// ================================================================
+// FUNCTIONS TO UPDATE the dropdown visibility based on the toggle
+// ================================================================
+    // Function to update the dropdown visibility based on the toggle
+// scripts.js - inside updateSearchOptionsDropdown
+function updateSearchOptionsDropdown() {
+    // ... (guard clauses for $searchOptionsFrame and $searchToggle) ...
+    if ($searchToggle.is(':checked')) { // Match mode
+        console.log('[updateSearchOptionsDropdown] Adding hidden-by-toggle');
+        $searchOptionsFrame.addClass('hidden-by-toggle');
+    } else { // Seek mode
+        $searchOptionsFrame.removeClass('hidden-by-toggle');
     }
-});
+}
 
+    // Call it once on load to set the initial state based on the toggle's default
+    updateSearchOptionsDropdown();
 
+    // Listen for changes on the #searchToggle
+    $searchToggle.on('change', function() {
+        updateSearchOptionsDropdown();
+        // Also update the search button text and sample questions visibility (existing logic)
+        updateSearchMode(); // Assuming updateSearchMode is your existing function for this
+    });
+    
 // ===============================================
 // FUNCTIONS TO UPDATE OTHER ELEMENTS OF MAIN UI
 // ===============================================
-    function updateSearchMode() {
-        if ($searchToggle.is(':checked')) {
-            // Keyword Search Mode
-            $searchBtn.text('Match');
-            $searchBtn.addClass('match-mode'); // Make button blue
-            $vectorSamples.hide();
-            $keywordSamples.show();
-        } else {
-            // Vector Search Mode
-            $searchBtn.text('Seek');
-            $searchBtn.removeClass('match-mode'); // Revert button to default
-            $vectorSamples.show();
-            $keywordSamples.hide();
-        }
+   function updateSearchMode() {
+    if ($searchToggle.is(':checked')) { // Match mode
+        $searchBtn.text('Match');
+        $searchBtn.addClass('match-mode'); // Make button blue
+        $vectorSamples.hide(); // This sets display: none on the vector samples div
+        $keywordSamples.css('display', 'grid'); // Explicitly set keyword samples to display: grid
+    } else { // Seek (Vector Search) Mode
+        $searchBtn.text('Seek');
+        $searchBtn.removeClass('match-mode'); // Revert button to default
+        $vectorSamples.css('display', 'grid'); // Explicitly set vector samples to display: grid
+        $keywordSamples.hide(); // This sets display: none on the keyword samples div
     }
+}
 
     // Initialize UI on page load
     updateSearchMode();
@@ -2244,9 +3292,109 @@ $("#send-btn").show();
 
     $searchInput.on('blur', function() {
         if (isMobile) {
-            toggleButtonVisibility(false);
+            // When search input blurs on mobile (e.g., keyboard hides),
+            // the layout might change or a slight scroll might occur.
+            // We need to re-evaluate the floating buttons' visibility.
+            // toggleOlierButton() will correctly apply .vanish if hasBeenInReadingModeThisSession is true.
+            // A short delay helps ensure any UI reflow/scroll due to keyboard hiding has settled.
+            setTimeout(toggleOlierButton, 100); // 100ms delay, then re-evaluate
         }
+        // For desktop, blur usually doesn't trigger the same overlap issue with floating buttons.
+        // If you find it necessary for consistency, you could add:
+         else {
+             setTimeout(toggleOlierButton, 50);
+         }
     });
+/*______________________New toggleOlierButton Function__________________________*/
+let lastScrollTop = 0; // Keep track of the last scroll position globally
+
+function toggleOlierButton() {
+    const olierButton = document.querySelector('.open_chatbot:not(.in-flex-box)');
+    const zoomToTopButton = document.querySelector('.zoom_to_top');
+    const chatbox = document.getElementById('chatbox'); // Keep chatbox check
+
+    if (!olierButton || !zoomToTopButton || !chatbox) return; // Exit if elements not found
+
+ // --- NEW: PRIORITY 1 - If user has entered reading mode this session, always hide these floating buttons ---
+    if (hasBeenInReadingModeThisSession) {
+        olierButton.classList.add('vanish'); // Use 'vanish' to hide and disable pointer events
+        zoomToTopButton.classList.add('vanish');
+        olierButton.classList.remove('hidden'); // Clean up other potential hiding class
+        zoomToTopButton.classList.remove('hidden');
+        // lastScrollTop might not need updating here if they are always vanished
+        return; // Exit early, these buttons remain vanished
+    }
+    // --- END NEW ---
+
+    let currentScrollTop = window.scrollY || window.pageYOffset;
+    const isChatboxOpen = chatbox.classList.contains('open');
+
+    // --- Reading Mode Handling (uses .vanish) ---
+    if (readingModeActivated) {
+        olierButton.classList.add('vanish');
+        zoomToTopButton.classList.add('vanish');
+        // Ensure .hidden is removed if reading mode takes precedence
+        olierButton.classList.remove('hidden');
+        zoomToTopButton.classList.remove('hidden');
+        lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop; // Update scroll pos even when vanished
+        return; // Exit early
+    } else {
+        // Ensure .vanish is removed if not in reading mode
+        olierButton.classList.remove('vanish');
+        zoomToTopButton.classList.remove('vanish');
+    }
+
+ // --- Mobile + Chatbox Open Handling (Priority 2) ---
+    // <<< START FIX >>>
+    if (isChatboxOpen && isMobile) {
+        olierButton.classList.add('hidden');     // Always hide chat button when chatbox open
+        zoomToTopButton.classList.add('hidden'); // <<< THIS IS THE FIX: Always hide books button on mobile when chatbox open
+        lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop; // Still update scroll pos
+        return; // Exit early as mobile/open case is handled
+    }
+    // <<< END FIX >>>
+
+    // --- Scroll Direction Handling (uses .hidden) ---
+
+    // Always show buttons if chatbox is open AND user is near the top (or scrolls up to near top)
+     if (isChatboxOpen && currentScrollTop <= 10) {
+         olierButton.classList.add('hidden'); // Chat button stays hidden when chatbox open
+         zoomToTopButton.classList.remove('hidden'); // Show Books button
+     }
+     // Always show buttons if chatbox is closed AND user is near the top (or scrolls up to near top)
+     else if (!isChatboxOpen && currentScrollTop <= 10) {
+        olierButton.classList.remove('hidden');
+        zoomToTopButton.classList.remove('hidden');
+     }
+     // Handle scrolling down (hide buttons)
+     else if (currentScrollTop > lastScrollTop) {
+        olierButton.classList.add('hidden');
+        zoomToTopButton.classList.add('hidden');
+     }
+     // Handle scrolling up (show buttons, respecting chatbox state)
+     else if (currentScrollTop < lastScrollTop) {
+         if (!isChatboxOpen) { // Show both if chatbox closed
+             olierButton.classList.remove('hidden');
+             zoomToTopButton.classList.remove('hidden');
+         } else { // If chatbox open, only show Books button when scrolling up
+            olierButton.classList.add('hidden');
+            zoomToTopButton.classList.remove('hidden');
+         }
+     }
+
+    // Update last scroll position for the next event
+    lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop; // For Mobile or negative scrolling
+}
+
+
+// ... (Your other functions - autoResize, etc.)
+
+
+/*______________________End of New toggleOlierButton Function__________________________*/
+
+
+
+/*______________________Old toggleOlierButton Function__________________________
 
     function toggleOlierButton() {
         // Get references to elements
@@ -2295,6 +3443,7 @@ $("#send-btn").show();
     
         adjustChatboxStyle();
     }
+/*______________________End of Old toggleOlierButton Function__________________________ */ 
 
     
     // Event listener for scroll event
@@ -2339,28 +3488,31 @@ $(document).on('click', '#settings-menu-dropdown .close-menu-btn', function(even
 
 
 
-// Handle click forzoom_to_top 
+// Handle click for .zoom_to_top (Books button)
 $(document).on('click', '.zoom_to_top', function(event) {
     console.log('Clicked:', $(this).attr('id') || $(this).attr('class'));
-    let scrollPosition = $(window).scrollTop();
 
-    if (scrollPosition <= 60) {
-        // Page is at the top, activate the main menu dropdown
-        event.preventDefault();
-        event.stopPropagation();  // Prevent default action if any
+    // Prevent default anchor behavior and stop event bubbling
+    event.preventDefault();
+    event.stopPropagation();
 
-        // Toggle the main menu dropdown
-        $('#main-menu-dropdown').toggleClass('active');
+    // Always toggle the main menu dropdown regardless of scroll position
+    $('#main-menu-dropdown').toggleClass('active');
 
-        // Toggle ARIA expanded state
-        let isExpanded = $(this).attr('aria-expanded') === 'true';
-        $(this).attr('aria-expanded', !isExpanded);
-    } else {
-        // Page is not at the top, scroll to the top
-        window.scrollTo(0, 0);
+    // Toggle ARIA expanded state for accessibility
+    let isExpanded = $(this).attr('aria-expanded') === 'true';
+    $(this).attr('aria-expanded', !isExpanded);
+
+    // --- REMOVED the else block that caused scrolling to top ---
+
+    // If the menu is being opened and reading mode is active, expand the current book
+    if ($('#main-menu-dropdown').hasClass('active') && readingModeActivated) {
+        // Ensure the function exists before calling
+        if (typeof expandCurrentBookInMenu === 'function') {
+            expandCurrentBookInMenu();
+        }
     }
 });
-
 
 
 // Font Size Adjuster
@@ -2405,6 +3557,21 @@ $('#decrease-font-btn').on('click', function(event) {
 // ===============================================
 
 // Apply Reading Mode Settings
+/* =========================================================
+ *    Search  ↔  Reading  view logic
+ * =======================================================*/
+
+/* ---------- cached elements ---------- */
+const fullTextDiv   = document.getElementById('full-text');      // reading pane
+
+/* ---------- UI flags & scroll memory ---------- */
+let isSearchVisible        = true;   // true when Search pane is on screen
+let searchScrollPosition   = 0;
+let fullTextScrollPosition = 0;
+
+/* ---------------------------------------------------------
+ * 1.  Activate reading mode after user clicks a result
+ * --------------------------------------------------------*/
 function applyReadingMode() {
     // Hide the searchSpace by adding the 'closed' class
     if (searchSpace) searchSpace.classList.add('closed');
@@ -2415,21 +3582,18 @@ function applyReadingMode() {
     // Activate bottom-flex-box
     if (bottomFlexBox) bottomFlexBox.style.display = 'flex';
 
-    // Use toggleButtonVisibility to hide both buttons
-    toggleButtonVisibility(true);
-
-    // Set the reading mode flag to true
+    // Set the reading mode flags
     readingModeActivated = true;
-    // Synchronize isSearchVisible with UI state
-    isSearchVisible = false;
+    hasBeenInReadingModeThisSession = true; // <<< SET THE NEW PERSISTENT FLAG
+    isSearchVisible = false; // From your toggle_search logic
+
+    // Call toggleOlierButton to hide floating buttons based on the new logic
+    toggleOlierButton(); //
 }
 
 // Ensure isSearchVisible is accessible
-var isSearchVisible = true; // Global variable to track visibility state
 
 // Variables to store scroll positions
-var searchScrollPosition = 0;
-var fullTextScrollPosition = 0;
 
 // Toggle Search Function using jQuery event delegation
 $(document).on('click', '.toggle_search', function(event) {
@@ -2479,6 +3643,9 @@ $(document).on('click', '.toggle_search', function(event) {
         isSearchVisible = true;
     }
 });
+
+// ... (Your other functions - toggleOlierButton, etc.)
+
 
 
 // Utility function to throttle execution
