@@ -1,0 +1,7 @@
+{
+  "name": "Olier",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
