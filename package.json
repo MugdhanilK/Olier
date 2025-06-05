@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "ionic:build": "echo \"Using static HTML/CSS/JS from www folder. No build step needed.\""
+  "scripts": {
+    "ionic:serve": "live-server www --port=8100 --host=localhost"
   },
   "repository": {
     "type": "git",
@@ -26,6 +25,7 @@
     "intersection-observer": "^0.12.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.1"
+    "@capacitor/cli": "^6.2.1",
+    "live-server": "^1.2.2"
   }
 }
